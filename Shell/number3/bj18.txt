@@ -1,0 +1,21 @@
+18.6 until循环
+until循环执行一系列命令直至条件为真时停止。 until循环与while循环在处理方式上刚好
+相反。一般while循环优于until循环，但在某些时候—也只是极少数情况下， until循环更加
+有用。
+until循环格式为：
+until 条件
+命令1
+. . .
+done
+条件可为任意测试条件，测试发生在循环末尾，因此循环至少执行一次—请注意这一
+点。
+
+#!/bin/bash
+aa=`df -lh | awk '{print $5,$NF}' | grep "/$" | sed -e 's/[%]//g' | awk '{print $1}'`
+
+until [ "$aa" -lt "80" ]  #如果少于80%则不执行循环
+do
+    echo "Filesystem / use 80%"
+    exit 1
+done
+echo "Filesystem 小于80%"

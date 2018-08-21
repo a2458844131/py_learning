@@ -1,0 +1,41 @@
+一、^只匹配行首
+# cat /etc/passwd | grep "^root"
+
+
+
+二、$只匹配行尾
+# cat /etc/passwd | grep "bash$"
+
+
+三、 *匹配单个字符或者多个
+# cat /etc/passwd | grep "root*"
+
+
+
+三、\屏蔽一个特殊字符的含义(转义)
+# echo "
+///\@itest
+\" > test.txt
+# cat 2.txt  | sed 's/\/\/\/\\/aa/g'
+
+
+四、[]定义一个范围或者一个集合
+# cd /opt
+# touch log.1123 && touch log.12 && touch LOG.AB && touch log.aa
+# ls | grep "[0-9]"
+# ls | grep "[A-Z]"
+# ls | grep "[a-z]"
+# ls | grep "[1 2 3 4 5 6]"  包含 1 2 3 4 6的显出来
+
+五、pattern\{n\}匹配模式
+A\{2\}B 匹配字母A出现2次，并且以B结尾
+# cat passwd | grep "root\{2\}*"
+
+A\{4,\}B 匹配A至少出现4次 
+# cat passwd | grep "spool\{4,\}*"
+
+
+A\{2,4\}B 匹配A出现次数2-4次之间
+# cat passwd | grep "spool\{2,4\}*"
+
+

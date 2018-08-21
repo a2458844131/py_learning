@@ -1,0 +1,64 @@
+                                Shell入门到精通
+                                  第2章 文件置换
+1、使用*号 
+可以使用*号匹配文件中的任意字符串
+# cd /root/
+# ls *.log
+# ls i*
+# ls *.sys*
+
+2、使用?号
+?号可以匹配任意的单个字符
+# ls ??stall.log
+install.log
+# ls ???tall.log
+install.log
+[# ls ????all.log
+install.log
+[# ls ?????ll.log
+install.log
+[# ls ??????l.log
+install.log
+# ls ???????.log
+
+
+3、使用[...]和[!...]
+使用[...]可以匹配方括号[]中的任意字符
+或者还可一使用 -表示两个字符或者数据的范围.
+# ls [c]*
+# ls [a-z].txt
+a.txt  A.txt  b.txt  B.txt  c.txt  C.txt
+# ls [A-Z].txt
+A.txt  b.txt  B.txt  c.txt  C.txt
+# ls [0-9].txt
+1.txt  2.txt  3.txt
+# ls [!0-9].txt   !表示取非
+a.txt  A.txt  b.txt  B.txt  c.txt  C.txt
+# ls [!0-9].txt
+a.txt  A.txt  b.txt  B.txt  c.txt  C.txt
+# ls [!a-z].txt
+1.txt  2.txt  3.txt
+
+4、编写脚本
+(1)、编写一个脚本名字为gongda1.sh
+需求如下:
+使用*号匹配/root下面所有的文件或者目录，将输出内容放入/tmp/root.log文件中
+并且告诉用户匹配命令成功，输出其中关于in开头的关键的文件
+
+(2)、编写一个脚本名为gongda2.sh
+需求如下:
+使用?号和* 匹配sh的文件，并且要出内容放入/tmp/root1.log文件当中
+并且告诉用户有多少个这种文件？ 
+
+(3)、编写一个脚本名为gongda3.sh
+需求如下:
+使用[...] 匹配.b开头的文件，要求输出内容放入/tmp/root2.lo文件当中
+并且告诉用户有多少个这种文件？ 
+
+
+
+
+
+
+
+

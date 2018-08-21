@@ -1,0 +1,167 @@
+一、#grep练习题:
+1、查找/目录下面的"passwd"文件和"profile" 文件
+
+2、查找/tmp下面权限为755的文件，没有的话 自己创建一个，修改权限
+
+3、在/test/aa 下面创建一个名字为 gongda.txt的文件，用find命令把/test/aa目 录给忽略掉是否还可以查找的到？
+
+4、创建一个用户和组 名为gongda，然后 gongda.txt所属用户和所属组全部修改成 gongda，
+使用user和group查找gongda的用户组，是否可 以查找到？
+然后删除掉gongda用户和组，再用nouser 和 nogroup查找没有所属和说是组的文件是否可以 查到？
+
+5、查找在/目录下面更改时间在5天以内的文件
+
+6、查找在/目录下面更改时间在3天以前的目录
+
+7、在/opt/test/下面创建一个名字为new.txt 文件。等5分钟后再创建一个ok.txt的文件。使 用find命令查找比gongda.txt新比ok.txt旧的 文件。
+
+8、使用find查找/home下面所有的目录
+
+9、使用find查找/home下面所有的文件，非目 录
+
+10、使用find查找/etc/ 下面所有的连接文件
+
+11、查找/etc/目录下面大于1M的文件，并且把 文件大小信息列出来。
+
+12、查找/etc/目录下面小于500K的文件，并且 把文件大小信息列出来
+
+13、查找/opt/test 子目录下面的gongda.txt 文件
+
+14、检查系统有几个挂在的文件系统，比如/  和/home是分开的，。那么在/home/创建一个
+sxgongda.txt文件。使用find 参数mount查找
+/目录是否可以查到sxgongda.txt文件？
+
+15、查询/opt/下面的gongda.txt文件，并且使 用exec 列出它的详细信息。
+
+16、使用什么参数可以每次find后跟系统命令 时给出安全提示？
+
+
+
+
+二、AWK练习题目：
+本章练习题：
+1 awk 默认以什么为分割符？
+2 抽取/etc/passwd 第一个域和第5个域并且统计他们的行号
+3 抽取第一个域，并且进行root匹配，然后打印出报告头内容为"This is user"
+4 抽取最后一个域，尾部信息用“########”分割
+5 请抽取第一个域，请且匹配以user开头的关键字
+6 匹配全局域带有[0-9]的关键字的域信息
+7 请打印出来行后大于30 并且匹配第一个域为mysql的信息条目
+8 请打印出/etc/passwd 里面最后一个域，并且统计bash有多少个？nologin的有多少个？
+9 请打印出UID小于500 但是大于200的用户信息
+10 请打印出带DHCP关键子的用户信息，并且告诉用户在那一行？
+11 请打印出wu开头的用户有几个？
+12 抽取全域匹配home关键字的有多少个用户？他们是否具bash登录权限
+13 匹配行号大于30 并且球UID大于50或者小于500的用户信息
+14 匹配系统用户有多少个？ 以及程序用户有多少个？
+15 匹配行号小于30的，并且匹配他们的bash的用户有多少个，在输出
+
+三、sed总结练习题目：
+将gongdatext.txt文档过滤要去如下:
+(1)、把Jon's 临时替换成Jonathan.
+(2)、把"Fred" 全部替换成gongda，其中包括了""号一起替换
+(3)、删除头三行和第11行
+(4)、显示5-10行
+(5)、显示关键字November-December的行号
+(6)、把三个***号加到Fred开头的行后面
+(7)、过滤包含JOse的行，然后用He Xi Gong 'da' 替换Jose.
+(8)、把Popeye的生日改为11/14/46
+(9)、删除所有空白行
+(10)、将里面包含关键字/全部替换成-
+
+gongdatext.txt内容如下：
+Steve Blenheim:238-923-7366:95 Latham Lane, Easton, PA 83755:11/12/56:20300
+Betty Boop:245-836-8357:635 Cutesy Lane, Hollywood, CA 91464:6/23/23:14500
+Igor Chevsky:385-375-8395:3567 Populus Place, Caldwell, NJ 23875:6/18/68:23400
+Norma Corder:397-857-2735:74 Pine Street, Dearborn, MI 23874:3/28/45:245700
+Jennifer Cowan:548-834-2348:583 Laurel Ave., Kingsville, TX 83745:10/1/35:58900
+Jon's DeLoach:408-253-3122:123 Park St., San Jose, CA 04086:7/25/53:85100
+Karen Evich:284-758-2857:23 Edgecliff Place, Lincoln, NB 92086:7/25/53:85100
+Karen Evich:284-758-2867:23 Edgecliff Place, Lincoln, NB 92743:11/3/35:58200
+Karen Evich:284-758-2867:23 Edgecliff Place, Lincoln, NB 92743:11/3/35:58200
+"Fred" Fardbarkle:674-843-1385:20 Parak Lane, DeLuth, MN 23850:4/12/23:780900
+Fred Fardbarkle:674-843-1385:20 Parak Lane, DeLuth, MN 23850:4/12/23:780900
+Lori Gortz:327-832-5728:3465 Mirlo Street, Peabody, MA 34756:10/2/65:35200
+Paco Gutierrez:835-365-1284:454 Easy Street, Decatur, IL 75732:2/28/53:123500
+Ephram Hardy:293-259-5395:235 CarltonLane, Joliet, IL 73858:8/12/20:56700
+James Ikeda:834-938-8376:23445 Aster Ave., Allentown, NJ 83745:12/1/38:45000
+Barbara Kertz:385-573-8326:832 Ponce Drive, Gary, IN 83756:12/1/46:268500
+Lesley Kirstin:408-456-1234:4 Harvard Square, Boston, MA 02133:4/22/62:52600
+William Kopf:846-836-2837:6937 Ware Road, Milton, PA 93756:9/21/46:43500
+Sir Lancelot:837-835-8257:474 Camelot Boulevard, Bath, WY 28356:5/13/69:24500
+Jesse Neal:408-233-8971:45 Rose Terrace, San Francisco, CA 92303:2/3/36:25000
+Zippy Pinhead:834-823-8319:2356 Bizarro Ave., Farmount, IL 84357:1/1/67:89500
+Arthur Putie:923-835-8745:23 Wimp Lane, Kensington, DL 38758:8/31/69:126000
+Popeye Sailor:156-454-3322:945 Bluto Street, Anywhere, USA 29358:3/19/35:22350
+Jose Santiago:385-898-8357:38 Fife Way, Abilene, TX 39673:1/5/58:95600
+Tommy Savage:408-724-0140:1222 Oxbow Court, Sunnyvale, CA 94087:5/19/66:34200
+Yukio Takeshida:387-827-1095:13 Uno Lane, Ashville, NC 23556:7/1/29:57000
+Vinh Tranh:438-910-7449:8235 Maple Street, Wilmington, VM 29085:9/23/63:68900
+
+
+四、脚本练习题目:
+(1)、要求编写一个脚本，请给出
+系统使用的什么样的Linux系统。
+系统内核版本多少 ，
+当前登录的用户为：
+系统有几块硬盘，每块硬盘的大小
+系统内存总量多少
+服务器的硬件型号
+有几颗CPU，每颗CPU有多少个内核 
+
+(2)、请编辑一个脚本，给出本机IP有多少IP地址。然后每个IP地址的子网掩码，
+然后请给出本机的网关IP是多少？
+效果输出如下：
+本机IP地址有3个 
+分别为： 
+IPxxxxxx,子网掩码xxxx
+IPxxxxxx,子网掩码xxxx
+IPxxxxxx,子网掩码xxxx
+网关地址为：IPXXXXX
+
+
+(3)、请编写一个脚本，查看本机有几快硬盘，每块硬盘的分区有几个？
+效果输出如下：
+本机硬盘有3个
+其中sda 有 5个分区
+其中sdb 有 3个分区
+其中sdc 有 2个分区
+
+(4)、请编写一个脚本，给出目前内存的总使用量，剩余使用量，使用了多少？
+效果输出如下：
+Mem total:4G
+Mem Use:3.2G
+Mem free:0.8G
+
+(5)、请编写一个脚本、给出每个程序占用超过0.2%的CPU资源，内存资源，要求
+占用资源最大的前10位，
+要求输出：
+Use Mem:xxxx% 程序为:xxxxxxx
+Use cpu:xxxx% 程序为:xxxxxxx
+
+
+(6)、编写一个脚本，统计服务器IP的链接数，以及每个IP连接状态。
+
+
+(7)、编写一个脚本，统计/etc/passwd 有多少系统用户，每个系统用户是否拥有登录系统的权限？
+效果输出为：
+用户：root  拥有登录系统权为：YES
+用户：root  拥有登录系统权为：NO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

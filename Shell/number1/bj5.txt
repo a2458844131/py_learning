@@ -1,0 +1,55 @@
+一、grep 选项
+-c 只输出匹配行的计数
+-i 不区分大小写(只适用于单字符)
+-h 查询多文件时不显示文件名
+-l 查询多文件时至输出包含匹配字符的文件名
+-n 显示匹配行以及行号
+-s 不显示不存在或匹配文本的错误信息
+-v 显示包含匹配文本的所有行.
+
+
+
+1.1、查询多个文件
+# echo "sort aa" > 1.txt
+# echo "sort bb" > 2.txt
+# echo "sort cc" > 1.log
+# echo "sort dd" > 2.log
+# grep "sort " .txt 在所有.txt文件中查找sort关键字
+# grep "sort " *  在所有的文件中查找sort关键字
+
+
+
+
+1.2、行匹配
+# grep -c "root" /etc/passwd 意思包含root的字符在passwd 有2行.
+
+1.3、行数
+# grep -n "root" /etc/passwd  显示内容并且把行号打印出来。
+
+1.4、显示非匹配行
+# grep -v "root" /etc/passwd
+
+
+1.5、大小写敏感
+缺省情况下区分大小写的，-i可以不区分大小写
+#echo "ROOT" > 1.txt
+#echo "root" > 1.txt
+# grep -i "root"
+
+
+1.6、$^空行
+# echo "
+root
+ROOT
+
+bb
+
+cc" > 1.txt
+
+# grep -v "^$" 1.txt
+
+
+1.7、-E参数，可以匹配多个条件
+# cat /etc/passwd | grep -E "root|spool"
+
+

@@ -1,0 +1,83 @@
+本章开始提到有4种变量，本地、环境，还有两种变量被认为是特殊变量，因为它们是只
+读的。这两种变量即为位置变量和特定变量参数。先来看一看位置变量。
+
+一、向脚本传递参数
+如果要向一个shell脚本传递信息，可以使用位置参数完成此功能。参数相关数目传入脚
+本，此数目可以任意多，但只有前 9个可以被访问，使用 shift命令可以改变这个限制。本书后
+面将讲到shift命令。参数从第一个开始，在第 9个结束；每个访问参数前要加 $符号。第一个
+参数为0，表示预留保存实际脚本名字。无论脚本是否有参数，此值均可用。
+如果向脚本传送Did You See Th e Full Mo o n信息，下面的表格讲解了如何访问每一个参
+数。
+$0        $1       $2      $3      $4      $5     $6     $7     $8     $9
+脚本名字  Did      You    See      The     Full   Moon
+
+案例1:
+后面的$7 $8 $9依此类推
+#vim /test.sh
+#!/bin/bash
+echo "$0"
+echo "$1"
+echo "$2"
+echo "$3"
+echo "$4"
+echo "$5"
+echo "$6"
+[root@Master /]# ./test.sh  Did you see the Full moon
+./test.sh
+Did
+you
+see
+the
+Full
+moon
+
+案例2:
+#vim /test1.sh
+#!/bin/bash
+ls $1
+
+传参数值为/tmp
+[root@Master /]# ./test1.sh /tmp
+1.log  1.txt  alvin  ssh-mXQMTo3363  yum.log
+
+二、特定变量参数
+$!  Shell最后运行的后台Process的PID 
+$- 显示shell使用的当前选项，与set命令功能相同
+#==============================================
+$#  传递到脚本的参数个数，是个数。注意咯。和$@是有区别的
+$@  与$#相同，但是使用时加引号，并在引号中返回每个参数值
+#!/bin/bash
+if [ $# -eq 1 ]
+then
+    aa="$@"
+    if [ $aa == "alvin" ]
+    then
+        echo $aa
+    else
+       echo "参数传输虽然等于1，但是$1值不等于alvin"
+       exit 1
+    fi
+else
+    echo "参数鼻息是一个参数"
+    exit 1
+fi
+
+
+
+$*  以一个单字符串显示所有向脚本传递的参数。与位置变量不同，此选项参数可超过 9个，
+[root@Master /]# cat aatest.sh 
+#!/bin/bash
+echo $*
+[root@Master /]# ./aatest.sh 1 2 3 4 5 7 8 9 10
+1 2 3 4 5 7 8 9 10
+
+$$  脚本运行的当前进程ID号
+[root@Master /]# cat aatest.sh 
+#!/bin/bash
+echo $$
+[root@Master /]# ./aatest.sh 
+3520
+
+$? 显示最后命令的退出状态。0表示没有错误，其他任何值表明有错误
+# ls /tmp/ && echo $?
+

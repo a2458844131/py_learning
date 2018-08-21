@@ -1,0 +1,37 @@
+18.7 while循环
+while循环用于不断执行一系列命令，也用于从输入文件中读取数据，其格式为：
+while 命令
+do
+命令1
+命令2
+. . .
+done
+虽然通常只使用一个命令，但在 while和do之间可以放几个命令。命令通常用作测试条
+件。
+只有当命令的退出状态为 0时，do和done之间命令才被执行，如果退出状态不是 0，则循
+环终止。
+命令执行完毕，控制返回循环顶部，从头开始直至测试条件为假。
+
+#!/bin/bash
+while true
+do
+echo -n "Plase enter you number:"
+read cc
+   if [ $cc -lt 10 ]
+   then
+      echo "$cc -lt 10"
+      continue
+   else
+      echo "$cc -gt 10"
+      break
+   fi
+done
+
+#!/bin/bash
+echo -n "Plase enter you number:"
+read cc
+while [ $cc -gt 10 ]
+do
+    echo "yes"
+    break
+done

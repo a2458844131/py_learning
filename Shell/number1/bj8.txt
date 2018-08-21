@@ -1,0 +1,225 @@
+一、sort用法
+
+(1)、-r 对分类进行次序或者比较求逆
+# cat 1.txt | sort -r
+4:datadir=/sdfsfsd:dd
+3:basedir=/data:gg
+2:basedir=:cc
+1:datadir=/aaa/zzz:bb
+
+(2)、-u 删除所有复制行
+# cat 1.txt | sort -u
+
+
+(3)、-n 指定分类是域上的数据分类
+你有没有遇到过10比2小的情况。我反正遇到过。出现这种情况是由于排序程序将这些数字按字符来排序了，排序程序会先比较1和2，显然1小，所以就将10放在2前面喽。这也是sort的一贯作风。
+# cat 2.txt | sort 
+1
+10
+11
+19
+2
+5
+# cat 2.txt | sort -n
+1
+2
+5
+10
+11
+19
+
+(4)、 sort的-t选项和-k选项
+# cat facebook.txt
+banana:30:5.5
+apple:10:2.5
+pear:90:2.3
+orange:20:3.4
+这个文件有三列，列与列之间用冒号隔开了，第一列表示水果类型，第二列表示水果数量，第三列表示水果价格。那么我想以水果数量来排序，也就是以第二列来排序，如何利用sort实现？幸好，sort提供了-t选项，后面可以设定间隔符。指定了间隔符之后，就可以用-k来指定列数了。
+# sort -n -k 2 -t ‘:’ facebook.txt
+apple:10:2.5
+orange:20:3.4
+banana:30:5.5
+pear:90:2.3
+
+
+
+
+
+
+二、uniq用法
+(1)、-u 只显示不重复行
+# cat 1.txt 
+111
+111
+2222
+2222
+3333
+3333
+4444
+# cat 1.txt | uniq -u
+4444
+
+
+(2)、-d 只显示有重复数据行
+# cat 1.txt | uniq -d
+111
+2222
+3333
+
+
+(3)、 -c 打印每一重复行出现的次数 
+# cat 1.txt | uniq -c 
+      2 111
+      2 2222
+      2 3333
+      1 4444
+
+
+三、join用法
+# cat 1.txt 
+name1 alvin1
+name2 alvin2
+name3 alvin3
+name4 alvin4
+
+# cat 2.txt 
+name1 100
+name2 101
+name3 102
+cccccccccccccccc
+
+# join 1.txt 2.txt   只显示匹配的行，CC和name4不匹配将忽略。
+name1 alvin1 100
+name2 alvin2 101
+name3 alvin3 102
+
+
+
+# join -a1 1.txt 2.txt 拿1.txt内容去2.txt匹配发现name4在2.txt里面没有,那么则显示不匹配，值就为空
+name1 alvin1 100
+name2 alvin2 101
+name3 alvin3 102
+name4 alvin4
+
+# join -a2 1.txt 2.txt 拿2.txt内容去1.txt匹配发现ccc在1.txt里面没有,那么则显示不匹配，值就为空
+name1 alvin1 100
+name2 alvin2 101
+name3 alvin3 102
+ccccccccccccccc
+
+
+# join -a1 1.txt -a2 2.txt  两边同时匹配。把不匹配的行全部输出来。
+name1 alvin1 100
+name2 alvin2 101
+name3 alvin3 102
+cccccccccccccccc
+name4 alvin4
+
+# join -o 1.2 2.2 1.txt 2.txt   连接文件1的第二部分，文件2的第三部分。前提是这两行的域一要匹配。
+alvin1 100
+alvin2 101
+alvin3 102
+
+
+
+
+四、cut用法
+
+-c list 指定剪切字符数
+-f field 制定剪切域数
+-d 指定与空格和tab键不同的域分割符
+
+(1)、-c 用来指定剪切范围
+-c1,5-7 剪切第一个1个字符，然后是第5到第7个字符
+-c1-50 、剪切前50个字符
+# cat 1.txt 
+name1 alvin1
+name2 alvin2
+name3 alvin3
+name4 alvin4
+# cat 1.txt  | cut -c1    把第一个字符剪切出来
+n
+n
+n
+n
+# cat 1.txt  | cut -c1,3-4  第一个字符和3-4个字符剪切出来
+nme
+nme
+nme
+nme
+
+
+(2)、-f格式与-c相同
+-f1,5 剪切第1个域，第5个域
+-f1,10-12 剪切第1域，第10域到第12域
+# cat 1.txt 
+name1 alvin1
+name2 alvin2
+name3 alvin3
+name4 alvin4
+# cat 1.txt  | cut -d" "  -f1  以空格为分割符，切割第一个域
+name1
+name2
+name3
+name4
+
+# cat 2.txt 
+name1:100
+name2:101
+name3:102
+# cat 2.txt  | cut -d:  -f1   以：为分割符。切割第一域 
+name1
+name2
+name3
+
+五、paste用法
+-d 指定不同于空格或者tab键盘的域分割符
+-s 将每个文件合并成行而不是按行粘贴
+# cat 2.txt 
+name1:100
+name2:101
+name3:102
+# paste 1.txt 2.txt 
+name1 alvin1    name1:100
+name2 alvin2    name2:101
+name3 alvin3    name3:102
+name4 alvin4
+
+# paste -d: 1.txt 2.txt 
+name1 alvin1:name1 100
+name2 alvin2:name2 101
+name3 alvin3:name3 102
+name4 alvin4:
+
+# paste -s 1.txt 2.txt 
+name1 alvin1    name2 alvin2    name3 alvin3    name4 alvin4
+name1 100       name2 101       name3 102
+
+[root@master ~]# cat 1.txt | paste -d" " - - - -      将内容以空格为分割符，横向显示
+name1 alvin1 name2 alvin2 name3 alvin3 name4 alvin4
+
+
+六、split用法
+split将大文件分割成小文件，特别是日志文件进行分割。
+
+1、举例：文件有1.log文件1万
+分别每 1000行分割成1个文件，做分析
+# split -1000 1.log 
+
+2、举例：文件1.txt有4行
+分别每1行，分割出来做为一个文件
+# cat 1.txt 
+name1 alvin1
+name2 alvin2
+name3 alvin3
+name4 alvin4
+# split -1 1.txt        
+# cat xaa  
+name1 alvin1
+# cat xac
+name3 alvin3
+# cat xab
+name2 alvin2
+# cat xad
+name4 alvin4
+

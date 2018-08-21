@@ -1,0 +1,91 @@
+                                     第二章 输入输出
+一、echo命令的使用
+echo 命令可以显示文本行和变量，
+或者把字符串输入到文件当中,
+echo -e  后一般会接参数,
+-e 若参数出现以下字符，则特别加以处理，而不会将它当成一般
+文字输出：
+   \a 发出警告声；
+   \b 删除前一个字符；
+   \c 最后不加上换行符号；
+   \f 换行但光标仍旧停留在原来的位置；
+   \n 换行且光标移至行首；
+   \r 光标移至行首，但不换行；
+   \t 插入tab；
+   \v 与\f相同；
+   \\ 插入\字符；
+   \nnn 插入nnn（八进制）所代表的ASCII字符；
+echo 语法：echo [-ne][字符串]或 echo [--help][--version]
+
+正常不加-e 想使用\n换行将无效
+[root@amoeba ~]# echo "aa\n bb\n"
+aa\n bb\n
+
+加上-e之后 \n之后生效了
+# echo -e "aa\n bb\n" 
+aa
+ bb
+
+# echo test > 1.txt 内容重定向
+
+# echo test2 >> 2.txt 内容重定向(追加)
+
+
+
+
+二、read命令
+# read myname
+alvinzeng
+# echo $alvinzeng
+alvinzeng
+
+
+三、cat 命令
+cat是一个简单而普通的命令，可以用来显示文件的内容，但是它不会在分页的时候停下来.如果希望分页查询使用| 管道和more
+管道的作用用来连接多个命令的执行
+# cat myfile | more
+
+
+四、tee命令
+# who | tee who.out 
+将who的输出定向到who.out文件里面
+
+
+# who | tee -a who.out
+将将who的输出追加到who.out尾部 -a表示追加
+
+五、标准输入、标准输出、标准错误
+(1)、标准输入为 0
+(2)、标准输出为 1
+(3)、标准错误为 2
+
+(4)重定向标准输出
+
+cat passwd | awk -F: '{print $1}' | sort  1>sort.out
+
+
+
+
+(5)重定向标准输入
+cat >> alvin.log <<EOF
+> my name is alvin
+> my name is gongda
+> good bye,..
+> EOF
+
+
+(6)重定向标准错误
+[root@amoeba ~]# grep "gongda" 111.txt
+grep: 111.txt: 没有那个文件或目录
+
+
+正常来说会产生一个错误.次方法标准2错误重定向
+# grep "gongda" 111.txt 2>/dev/null
+
+
+(7)标准输出和标准错误结合使用
+# grep "root" /etc/passwd > 1.log 2>&1
+
+
+
+

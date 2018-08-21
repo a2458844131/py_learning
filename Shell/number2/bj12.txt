@@ -1,0 +1,80 @@
+一、概述：
+在脚本中执行变量替换时最容易犯的一个错误就是由于引用错误。在命令行中各种引用是很重要的。
+由此引号体现了它的重要性。
+引用的必要性。
+? 双引、单引和反引号。
+? 使用反斜线实现屏蔽
+
+shell引用类型
+" "双引号
+｀反引号
+' '单引号
+\反斜线
+
+
+1、双引号
+使用双引号可引用除字符$、`、\外的任意字符或字符串。这些特殊字符分别为美元符号，
+反引号和反斜线，对 shell来说，它们有特殊意义。如果使用双引号将字符串赋给变量并反馈
+它，实际上与直接反馈变量并无差别。
+
+#aatest="/etc/passwd"
+#echo "$aatest"
+
+[root@Master /]# cat /etc/passwd | grep -E "root|bash"  #有双引号输出
+root:x:0:0:root:/root:/bin/bash
+operator:x:11:0:operator:/root:/sbin/nologin
+
+
+[root@Master /]# cat /etc/passwd | grep -E root|bash   #无双引号输出
+bash: line 1: root:x:0:0:root:/root:/bin/bash: 没有那个文件或目录
+bash: line 2: operator:x:11:0:operator:/root:/sbin/nologin: 没有那个文件或目录
+
+
+
+2、 单引号
+单引号与双引号类似，不同的是 s h e l l会忽略任何引用值。换句话说，如果屏蔽了其特殊
+含义，会将引号里的所有字符，包括引号都作为一个字符串。使用上一个例子，结果如下：
+[root@Master /]# aa='This is desk "alvin"'
+[root@Master /]# echo $aa
+This is desk "alvin"
+
+思考一下。如果这个地方是用但引号。怎么办？
+aa='this's desk'  这个变量能使用吗？试试看。
+
+
+3、反引号
+反引号用于设置系统命令的输出到变量。 s h e l l将反引号中的内容作为一个系统命令，并
+执行其内容。使用这种方法可以替换输出为一个变量。反引号可以与引号结合使用。
+
+# aa="date"
+# echo $aa
+尝试一下上面和下面这个语句有什么不同？
+# aa=`date`
+# echo $aa
+
+
+4、 反斜线
+如果下一个字符有特殊含义，反斜线防止 shell误解其含义，即屏蔽其特殊含义。下述字
+符包含有特殊意义：& * + ^ $ ` " | ?。
+假定echo命令加*，意即以串行顺序打印当前整个目录列表，而不是一个星号 *。
+
+[root@Master /]# echo *
+@ 1.py aatest.sh backup bin boot C cgroup dev etc home lib lib64 lost+found media mnt oops.txt opt proc python root sbin selinux srv sys test1.sh test.sh test.txt tmp usr var
+[root@Master /]# echo \*
+*
+
+[root@Master /]# echo $$
+3365
+[root@Master /]# echo \$$
+$$
+
+[root@Master /]# expr 12 * 12
+expr: 语法错误
+[root@Master /]# expr 12 \* 12
+144
+
+小结
+在引用时会遇到一些问题且经常出错。我在使用引用时遵循两条规则：
+1) 反馈字符串用双引号；但不要引用反馈本身。
+2) 如果使用引用得到的结果不理想，再试另一种，毕竟只有三种引用方式，可以充分尝
+试

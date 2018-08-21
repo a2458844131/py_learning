@@ -1,0 +1,147 @@
+                             Shell编程入门到精通
+                                1章->find
+(1)、-name 选项
+# find /opt/tmp/ -name "1.txt"
+# find /opt/tmp/ -name "[0-9].txt"
+# find /opt/tmp/ -name "[a-z].txt"
+# find /opt/tmp/ -name "[A-Z].txt"
+
+(2)、perm 选项
+# find /opt/tmp/ -perm 644 -print
+# find /opt/tmp/ -perm 755 -print
+练习题目:
+ ..查找/etc/下面所有以.txt开头的文件，把结果输出到/opt/tmp/log.txt 统计一下一共多少个文件 
+ ..查找/etc/下面所有644和755 的文件或者目录，结果输出到/opt/tmp/log1.txt和log2.txt里面，其中log1.txt保存644文件数量 log2.txt保存755目录的数量
+
+ ..编写一个简单的Shell脚本，用户要求1:显示出*.txt 在/etc/文件数量
+ ..编写一个简单的Shell脚本，用户要求2:显示出644文件权限 在/etc/文件数量
+ ..编写一个简单的Shell脚本，用户要求2:显示出755文件权限 在/etc/目录数量
+输入内容如下:
+1:*.txt数量为:xxxxx
+2:权限为644文件数量为:xxxxx
+3:权限为755目录数量为:xxxxx
+
+
+(3)、user和nousers选项
+(4)、group和nogroup选项
+# groupadd alvin
+# useradd alvin -g alvin
+# chow alvin:alvin [0-9].txt
+# find . -user alvin 
+# find . -group alvin
+# find . -nouser -print
+# find . -nogroup -print
+
+
+
+(5)、按照更改时间查找文件
+查找系统根目录下面，更改时间在5天以内的文件
+# find / -mtime -5 -print >/opt/tmp/time.log
+
+
+(6)、查找系统个目录下，更改时间在3天以前的文件
+# find / -mtime +3 -print > /opt/tmp/time1.log
+
+
+(7)、查询比某一个文件新或者旧的文件
+# find . -newer a.txt ! -newer gongda.txt -print
+
+
+(8)、查询type选项类型 
+# find . -type d -print
+
+
+(9)、使用size选项
+查找当前文件大于10M的文件
+# find . -size +10M -print
+# find . -size -10M -print
+
+(10)、使用depth选项
+# find /opt/tmp/ -depth -name "1.txt" -print
+
+(11）、使用mount选项
+-mount 表示不能跨越文件系统查找，只能在自己当前mount的文件系统查找
+# find /var/ftp/software/ -mount -name "alvinzeng.txt" -print
+
+
+(12)、使用-exec或者-ok来执行shell命令
+# find . -type f -exec ls -l {} \;
+# find . -type -r -ok rm {} \;  ok后面之能跟rm删除命令
+
+
+(13)xargs比-exec更加的方便
+# find . -name "[a-z].txt" -print | xargs ls -l
+
+
+
+
+本章练习题目:
+(1)编写一个写脚本
+ 需求、查找/根目录下面的"passwd"文件和"profile"文件，有多少个？ 
+ 输出内容:
+ "passwd数量"
+ "profile数量"
+
+(2)编写一个脚本
+查找/tmp下面权限为755的文件，如果没有？则自己创建一个，
+ 输出内容：
+ "tmp755文件多少个？"
+ "myself创建了多少个？"
+
+
+(3)、编写一个脚本
+创建一个组和一个用户,组名字为gongda，用户名称为gongda1，指定gongda1主组为gongda
+然后在脚本里面针对/opt/tmp   [0-9].txt 进行赋权，指定它们所属组为gongda ，所属用户为gongda1 
+然后使用find user group 查询它们的数量，并且输出内容告诉用户
+user:
+group: 
+
+然后告诉用户是否需要删除gongda1 和gongda组？用户给你回答是yes,删除使用nouser 和nogroup 查询一下，输出
+
+nouser:
+nogroup:
+
+(4)、编写一个脚本
+查找/目录下面5天以内更改的文件为多少个？
+查找/目录下面3天以前更改文件有多少个？
+输入内容：
+5天以内的:
+3天以前的:
+
+
+(5)、编写一个脚本
+查找/etc/目录下面 大于1M的文件有多个？
+查找/etc/目录下面 小于500k又多少个？
+
+
+(6）、使用find查找/home下面所有的目录
+
+(7)、使用find查找/etc/下面所有的链接文件
+
+(8)、使用find 查找"passwd"文件并且列出此文件的权限
+=========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

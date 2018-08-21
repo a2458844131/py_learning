@@ -1,0 +1,71 @@
+tr用法：
+tr用来从标准输入中通过替换或删除操作进行字符转换。 tr主要用于删除文件中控制字符
+或进行字符转换。使用tr时要转换两个字符串：字符串1用于查询，字符串2用于处理各种转换。
+tr刚执行时，字符串1中的字符被映射到字符串2中的字符，然后转换操作开始
+-c 用字符串1中字符集的补集替换此字符集，要求字符集为 ASCII。
+-d 删除字符串1中所有输入字符。
+-s 删除所有重复出现字符序列，只保留第一个；即将重复出现字符串压缩为一个字符
+串
+\ a  Ctrl-G 铃声  \ 0 0 7
+\ b  Ctrl-H 退格符 \ 0 1 0
+\f   Ctrl-L 走行换页\ 0 1 4
+\n   Ctrl-J 新行     \ 0 1 2
+\ r  Ctrl-M 回车      \ 0 1 5
+\t   Ctrl-I tab键      \ 0 11
+\ v  Ctrl-X            \ 0 3 0
+
+1、删除重复出现的字符串
+#echo "
+And the cowwwwwssssss went homeeeeeeeee
+i havvvvve 
+theyyyyyyyyy" >test.txt
+
+# cat test.txt |tr -s "[a-z]" 
+And the cows went home
+i have they
+
+
+2、删除空行
+# cat test.txt  | tr -s "[\n]"
+
+3、小写转成大写
+# cat test.txt  | tr  "[a-z]" "[A-Z]" 小写换大写
+# cat test.txt  | tr  "[A-Z]" "[a-z]" 大写换小写
+
+4、删除指定字符
+# cat test.txt  | tr -d "[And]"
+
+5、转换控制字符
+^的八进制代码是136，^ M是015，tab键是011，^Z是032
+#vim /test.txt
+And the cowwwwwssssss went homeeeeeeeee^M
+i havvvvve ^^^theyyyyyyyyy^M
+sdfsdsfd
+
+                ^Msdfsfsfs
+				
+#cat test.txt | tr -s "[\015\032\011]" "[\n]"
+				
+6、匹配多个字符串
+# cat test.txt 
+1293 hdisk3
+4512 hdisk1
+0000 hdisk5
+4993 hdisk6
+2997 hdisk7
+0010 hdisk8
+
+
+# cat test.txt |tr "[0*4]" "*"			
+因此用星号代替所有的 0。模式为[ 0 * 4 ]，意即匹
+配至少4个0，替换字符串为星号
+1293 hdisk3
+4512 hdisk1
+**** hdisk5
+4993 hdisk6
+2997 hdisk7
+**1* hdisk8
+tr主要用于字符转换或者抽取控制字符。本章所有功能都可以用 sed来完成，但有些人宁
+愿使用tr，因为tr更加快捷、容易				
+				
+

@@ -1,0 +1,63 @@
+                                      第一章find命令
+(1)、使用-name选项
+查找文件
+# find /test -name "*.txt" -print 
+       
+       
+(2)、使用perm选项
+按照权限查找
+# find /shell/ -perm 755 -print
+
+
+(3)、使用-prune忽略目录
+# find 1.txt -path "/shell/aa" -prune -o -print
+
+(4)、使用user和nouser选项
+# find /shell/ -user alvin -print
+
+# find /shell/ -nouser  -print
+
+(5)、使用group和nogroup选项
+# find /shell/ -group alvin -print
+# find /shell/ -nogroup alvin -print
+
+
+(6)、按照更改时间查找文件
+按照更改时间5天以内
+# find / -mtime -5 -print 
+
+按照更改时间3天以前
+# find / -mtime +3 -print
+
+(7)、使用type选项类型
+# find /test -type d -print 
+
+# find /test -type l -print 
+
+
+(8)、使用size选项
+查找当前目录大于10M的文件
+# find . -size +10M -print |xargs ls -l
+
+查找当前目录小于10M的文件
+# find . -size -10M -print |xargs ls -l
+
+
+(9)、使用mount选项
+-mount表示不能跨文件系统,只能在自己当前mount文件系统下查找
+# find / -mount -name "alvin.txt" -print
+
+
+(10)使用exec来执行shell命令
+# find /shell/ -type f -exec ls -l {} \;
+# find /shell/ -type f |xargs ls -l
+
+
+
+
+
+
+
+
+
+ 
