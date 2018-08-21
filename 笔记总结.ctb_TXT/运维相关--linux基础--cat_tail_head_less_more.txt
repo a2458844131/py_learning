@@ -1,0 +1,58 @@
+CAT TAIL HEAD LESS MORE
+cat 显示文件里的内容
+   cat 文件名
+   cat -n 显示文件里的内容的同时,添加 行号
+more 显示文件里的内容（分页显示）
+   more 
+   用途：全屏分页显示文件内容
+   交互操作方法：
+   enter 向下逐行滚动
+   空格键向下滚屏
+   b向上滚屏
+   按q键退出
+less 用法和more类似但是扩展功能更多
+   page down page up 上下翻页
+tail 查看文件结尾的少部分内容
+   tali -n 文件名 
+   
+head
+    用途：查看文件开头的一部分内容（默认为10行）
+    格式：head -n 文件名
+高级用法：
+    格式：tail  -n 数字 文件名
+    数字：数字前有 +（加号），从文件开头指定的单元      数开始输出；数字前有 -（减号），从文件末尾指定的单元 数开始输出；没有 +或 -，从文件末尾指定的单元 数开始输出。
+    例如：
+    tail -n +3 /etc/passwd 从第三行开始显示    *
+    tail -n -3  /etc/passwd 显示最后三行
+    head -n -3 /etc/passwd 不显示最后三行      *
+    head -n +3 /etc/passwd 显示前三行
+
+CAT TAIL HEAD LESS MORE
+cat 显示文件里的内容
+   cat 文件名
+   cat -n 显示文件里的内容的同时,添加 行号
+more 显示文件里的内容（分页显示）
+   more 
+   用途：全屏分页显示文件内容
+   交互操作方法：
+   enter 向下逐行滚动
+   空格键向下滚屏
+   b向上滚屏
+   按q键退出
+less 用法和more类似但是扩展功能更多
+   page down page up 上下翻页
+tail 查看文件结尾的少部分内容
+   tali -n 文件名 
+   
+head
+    用途：查看文件开头的一部分内容（默认为10行）
+    格式：head -n 文件名
+高级用法：
+    格式：tail  -n 数字 文件名
+    数字：数字前有 +（加号），从文件开头指定的单元      数开始输出；数字前有 -（减号），从文件末尾指定的单元 数开始输出；没有 +或 -，从文件末尾指定的单元 数开始输出。
+    例如：
+    tail -n +3 /etc/passwd 从第三行开始显示    *
+    tail -n -3  /etc/passwd 显示最后三行
+    head -n -3 /etc/passwd 不显示最后三行      *
+    head -n +3 /etc/passwd 显示前三行
+

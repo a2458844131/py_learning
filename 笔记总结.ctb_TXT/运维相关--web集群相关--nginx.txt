@@ -1,0 +1,824 @@
+NGINX
+             一、什么是Nginx？
+很多人对apache非常的熟悉，Nginx和Apache类似，都属于Web容器，同时也是一款高性能的
+HTTP和反向代理软件，发音(engine x)
+
+二、为什么要选择Nginx
+Nginx和Apache最大的区别:
+（1）Apache处理速度非常慢，而且占用很多内存资源，Nginx正好相反，
+(2)在功能Apache的所有模块都是支持动静态编译，而Nginx都是静态编译
+(3)Apache对FCGI的支持不好，而Nginx对FCGI支持非常的好.
+(4)在处理链接上，Nginx支持epoll，而Apache却不支持
+(5)从安装包看Nginx只有百K,Apache都按照M以算，非常的庞大.
+                                                
+三、Nginx的优势
+（1）作为WEB服务器，Nginx处理静态文件，索引文件 自动搜索的效率非常之高
+
+(2)作为代理服务器Nginx可以实现反向代理加速。提高网站的运行速度
+
+(3)做负载均衡器,Nginx可以在内部直接支持Rails和PHP，可以支持HTTP代理服务器对外进行服务，同时还支持简单的容错利用算法进行负载
+(4)在性能方面，Nginx专门为性能优化而开发的，支持最并发链接数为5万.
+
+(5)稳定方面 CPU占用资源非常低，官方表示Nginx保持1万个没有活动的链接，占用2.5M内存，官方声称在这种状态DDOS攻击是完全无效的.
+
+(6)在高性能方面，Nginx支持热部署，启动速度特别迅速，因此可以不间断服务的情况下，对软件的版本配置或者升级，不影响现网业务，运行几个月也不需要启动，几乎可以做7*24小时不间断运行.
+
+四、Nginx的模块工作原理
+Nginx由内核与模块组成，内核的设计非常小巧和简洁，完成的工作也是非常的简单，通过配置文件
+将客户端请求映射到一个location block当中，然后通过这个location中的配置每个指令调用不同模块，从而完成相应的工作.
+    Nginx的模块从结构分:
+    核心模块包含了:http模块，event模块，mail模块
+    基础模块包含了:http Access模块 Http FastCGI模块 Http Proxy 模型和HTTP Rewrite模块.
+    第三方模块:Http upstream request模块，Notice模块和Http Access key模块
+    
+    以上模块从功能分为3个大类:
+    (1)Handerls(处理模块)此类模块直接请求，并且将输出内容和修改Haders信息操作,
+    Handerls处理器模块只有一个
+    (2)Filters（过滤模块) 主要针对其它的处理模块输出内容和进修修改，最后由Nginx输出.
+    (3)Proxies(代理模块)，此模块Nginx的HTTP upstream之类的模块，这些模块实现了后端服务比如:FastCGI的信息交互,实现代理服务和负载均衡.
+    
+    
+    HTTP发出请求
+      |
+      |
+     \|/
+    Nginx内核
+      |
+      |
+ 选择一个Handlers处理模块
+      |
+      |
+    Handlers模块进行处理-----》交给Filters(过滤模块)-->响应HTTP请求
+在工作方式上，Nginx分为单进程和双进程两种，Nginx默认工作方式为单进程工作
+
+#===============================================================
+五、Nginx的安装与配置
+(1)安装依赖库
+# yum -y install gcc openssl-devel zlib-devel
+
+安装pcre-delvel库pcre-8.01.tar.gz
+# cd /soft/
+# tar xf pcre-8.01.tar.gz -C tmp/
+# cd tmp/pcre-8.01/
+#./configure && make && make install
+
+安装libmd5 libmd5-0.8.2b.tar.gz
+# cd /soft/
+#tar xf libmd5-0.8.2b.tar.gz -C tmp/
+
+(2)安装Nginx 
+# useradd user_00 -g users -s /sbin/nologin 
+# cd /soft/
+# tar -xvf nginx-0.8.55.tar.gz -C tmp/
+# cd tmp/nginx-0.8.55/
+./configure --user=user_00 --group=users --with-http_realip_module --with-http_stub_status_module --with-http_gzip_static_module --with-md5=/soft/md5/ --with-sha1=auto/lib/sha1 --with-pcre=/soft/pcre-8.01/ --without-select_module --without-poll_module --without-http_ssi_module --without-http_userid_module --without-http_geo_module --without-http_map_module --without-http_memcached_module --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module --prefix=/usr/local/services/nginx-0.8.55
+# make >/dev/null && make install >/dev/null
+编译参数详解：
+--with-http_realip_module 
+此模块支持显示真实来源IP地址，主要用于NGINX做前端负载均衡服务器使用。
+
+-with-http_stub_status_module 
+这个模块可以取得一些nginx的运行状态， 
+
+--with-http_gzip_static_module 
+这个模块在一个预压缩文件传送到开启Gzip压缩的客户端之前检查是否已经存在以“.gz”结尾的压缩文件，这样可以防止文件被重复压缩。
+
+--with-md5=/soft/md5/ 
+设定md5库文件路径
+
+--with-sha1=auto/lib/sha1 
+设定sha1库文件路径
+--with-pcre=/soft/pcre-8.01 
+设定PCRE库路径
+
+--without-select_module 
+标准连接模式。默认情况下自动编译方式。您可以启用或禁用通过使用-select_module和不带- select_module配置参数这个模块
+
+--without-poll_module 
+不使用poll模块
+
+--without-http_ssi_module 
+不使用ngx_http_ssi_module模块，此模块处理服务器端包含文件(ssi)的处理.
+
+--without-http_userid_module 
+不使用ngx_http_userid_module模块
+
+--without-http_geo_module 
+这个模块基于客户端的IP地址创建一些ngx_http_geoip_module变量，并与MaxMindGeoIP文件进行匹配，该模块仅用于 0.7.63和0.8.6版本之后。但效果不太理想，对于城市的IP记录并不是特别准确，不过对于网站的来源访问区域的分析大致有一定参考性
+。
+--without-http_map_module 
+不使用ngx_http_map_module模块
+
+--without-http_memcached_module 
+不使用ngx_http_memcached_module模块
+
+--without-mail_pop3_module 
+不允许ngx_mail_pop3_module模块
+
+--without-mail_imap_module 
+不允许ngx_mail_imap_module模块
+
+--without-mail_smtp_module 
+不允许ngx_mail_smtp_module模块
+
+
+
+
+
+
+4.4、编辑主配置文件
+配置文件位置:/usr/local/nginx/conf/nginx.conf 
+1.	Nginx配置文件分为4个部分 
+2.	main(全局设置）
+3.	server(主机设置)
+4.	upstream(负载均衡设置)
+5.	localtion(URL匹配特定位置的设置)
+这四个 server继承main  location继承server 
+upstream即不会继承 其它设置也不会被继承.
+
+
+#vim /usr/local/nginx/conf/nginx.conf 
+#==================================一全局配置#========================
+user  user_00 users;  #这个模块指令，指Nginx Worker 运用的用户和组，默认为nobody
+worker_processes  8;  #指定了要开启的进程数，每进程占用10M~12M的内存，建议和CPU的核心数量一样多的进程就行了。
+
+
+error_log  logs/error.log; #全局错误日志
+#error_log  logs/error.log  notice; 
+#error_log  logs/error.log  info;   
+  
+pid        logs/nginx.pid;  #:用来指定进程ID的存储位置.
+
+
+#Specifies the value for maximum file descriptors that can be opened by this process.
+#events 用来指定Nginx工作模式以及连接数上限
+events {
+    use epoll;  #使用epoll高效模式，适用于Linux,Unix使用kqueue
+    worker_connections  100000; #定义Ningx没个进程最大的连接数。默认为1024，受到文件句柄的约束。
+}
+worker_rlimit_nofile 100000; #打开的文件句柄数量最高为10万
+
+#==================================二、HTTP配置========================
+http {
+    include       mime.types;  #实现对配置文件所包含的文件设定
+    default_type  application/octet-stream; #属于HTTP核心模块，默认设定为二进制流
+    server_tokens off;   #禁止错误页面里显示nginx的版本号
+
+	# 定义日志处理的格式
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+	# 定义它的hash表为128K
+    server_names_hash_bucket_size 128;
+    client_header_buffer_size 32k; #客户端请求头部的缓冲区大小，一般一个请求头的大小不会超过1k
+    large_client_header_buffers 4 32k; #客户请求头缓冲大小 nginx默认会用client_header_buffer_size这个buffer来读取header值
+    client_max_body_size 8m; #设定通过nginx上传文件的大小
+
+	#sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，
+     #对于普通应用，必须设为on。
+	 #如果用来进行下载等应用磁盘IO重负载应用，可设置为off，以平衡磁盘与网络IO处理速度，降低系统uptime。
+    sendfile          on;
+    tcp_nopush        on; #此选项允许或禁止使用socke的TCP_CORK的选项，此选项仅在使用sendfile的时候使用
+    tcp_nodelay       on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout 60; #keepalive超时时间。连接保持活动时间超过这个，将被关闭掉
+
+	#===================重要位置============
+    fastcgi_connect_timeout 300; #指定连接到后端FastCGI的超时时间。
+    fastcgi_send_timeout 300; #向FastCGI传送请求的超时时间，这个值是指已经完成两次握手后向FastCGI传送请求的超时时间。
+    fastcgi_read_timeout 300; #接收FastCGI应答的超时时间，这个值是指已经完成两次握手后接收FastCGI应答的超时时间。
+    fastcgi_buffer_size 254k; #指定读取FastCGI应答第一部分需要用多大的缓冲区
+    fastcgi_buffers 16 256k; #指定本地需要用多少和多大的缓冲区来缓冲FastCGI的应答。
+    fastcgi_busy_buffers_size 512k; #这个指令我也不知道是做什么用，只知道默认值是fastcgi_buffers的两倍。
+    fastcgi_temp_file_write_size 512k; #在写入fastcgi_temp_path时将用多大的数据块，默认值是fastcgi_buffers的两倍。
+
+    gzip              on; #该指令用于开启或关闭gzip模块(on/off)
+    gzip_min_length   1k; #设置允许压缩的页面最小字节数，页面字节数从header头得content-length中进行获取
+    gzip_buffers      4 16k; #设置系统获取几个单位的缓存用于存储gzip的压缩结果数据流
+    gzip_http_version 1.0; #识别http的协议版本
+    gzip_comp_level   2;   #gzip压缩比，1压缩比最小处理速度最快
+	#匹配mime类型进行压缩，无论是否指定,”text/html”类型总是会被压缩的
+    gzip_types        text/plain application/x-javascript text/css application/xml text/javascript;
+    gzip_vary         on; #和http头有关系，加个vary头，给代理服务器用的
+
+    charset      utf-8;  #字符集为utf-8
+
+    access_log   off;    # 日常日志关闭
+    log_not_found off;   # 日常日志关闭
+
+        error_page  400 403 405 408  /40x.html;  # 错误返回页面
+        error_page  500 502 503 504  /50x.html;  # 错误返回页面
+	#===================Server虚拟机配置保持默认============
+    server {
+        listen       80 default;   #默认监听端口号为80
+        server_name  _;
+	return       444;
+    }
+#===================自定义虚拟机配置文件===========
+include vhost/vhost.www.fanhougame.com;
+
+}
+
+主配虚拟Server配置文件如下:
+    server {
+        listen       80 ; #监听端口号
+		#域名为
+        server_name  10.0.0.201;
+        # 指定网站的目录
+		root         /data/www/oa.com/www.fanhougame.com ;
+
+		# localtion模块指定网站首页名称
+        location / {
+            index index.php index.html index.htm;
+            if (!-e $request_filename) {
+                return 444;
+            }
+        }
+
+		#:返回的错误信息
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/local/nginx/html;
+        }
+
+		#可以指定多个localtion进行不同的指令处理，这里是指定php的sock
+        location ~ \.php$ {
+            fastcgi_pass   unix:/tmp/php-cgi-5313-web.sock;
+            fastcgi_index  index.php;
+            include        fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SERVER_NAME $http_host;
+            fastcgi_ignore_client_abort on;
+        }
+
+		#指定对网页图片格式进行缓存max表示10年，也可以是30d(天)
+        location ~ \.(swf|js|css|xml|gif|jpg|jpeg|png|bmp)$ {
+            error_log    off;
+            access_log   off;
+			#expires      30d;
+            expires      max;
+        }
+    }
+
+4.5、启动与平滑重启
+# cd /usr/local/services/nginx-0.8.55/sbin/
+# ./nginx –t 检测配置文件是否有错误
+# ./nginx 启动nginx
+# ./nginx -s reload
+####################################################################################
+
+六、	Nginx常用配置实例
+6.1、负载均衡配置实例环境:
+Master:10.0.0.201
+Master Web 10.0.0.201:81
+Slave1 Web 10.0.0.202:80
+Slave2 Web 10.0.0.203:80
+
+
+6.2、在201编辑主配置文件nginx.conf
+# vim /usr/local/service/nginx/conf/nginx.conf
+
+
+6.3、在201上面编辑虚拟主机配置文件vhost.aatest.com
+# vim /usr/local/service/nginx/conf/vhost/vhost.aatest.com
+
+
+6.4、在201上面编辑负载均很配置文件
+# vim /usr/local/service/nginx/conf/vhost/vhost.fuzai
+upstream www.aatest.com {
+      server  10.0.0.201:81 weight=1 max_fails=3 fail_timeout=20s;
+      server  10.0.0.202:80 weight=1 max_fails=3 fail_timeout=20s;
+      server  10.0.0.203:80 weight=1 max_fails=3 fail_timeout=20s;
+}
+
+server{
+    listen 80;
+    server_name www.aatest.com;
+    location / {
+        proxy_pass         http://www.aatest.com;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+
+6.5、在202和203编辑如下主配置文件
+
+# vim /usr/local/service/nginx/conf/nginx.conf
+
+
+
+6.5、在202和203编辑如下虚拟主机配置文件
+# vim /usr/local/service/nginx/conf/www.aatest.com
+    server {
+        listen       80 ; #监听端口号
+        #域名为
+        server_name  www.aatest.com;
+        # 指定网站的目录
+                root         /opt/zeng ;
+
+                # localtion模块指定网站首页名称
+        location / {
+            index index.php index.html index.htm;
+            if (!-e $request_filename) {
+                return 444;
+            }
+        }
+
+                #:返回的错误信息
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/local/nginx/html;
+        }
+
+                #可以指定多个localtion进行不同的指令处理，这里是指定php的sock
+        location ~ \.php$ {
+            fastcgi_pass   unix:/tmp/php-cgi-5313-web.sock;
+            fastcgi_index  index.php;
+            include        fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SERVER_NAME $http_host;
+            fastcgi_ignore_client_abort on;
+        }
+
+                #指定对网页图片格式进行缓存max表示10年，也可以是30d(天)
+        location ~ \.(swf|js|css|xml|gif|jpg|jpeg|png|bmp)$ {
+            error_log    off;
+            access_log   off;
+                        #expires      30d;
+            expires      max;
+        }
+    }
+
+
+                      
+总结如下：
+单机WEB配置
+1、安装库
+2、安装Nginx
+3、编辑Nginx.conf主文件(注意编辑完虚拟配置文件之后。要主文件相关连(include file>
+4、编辑虚拟机的配置文件
+5、启动服务
+6、建立网站对应的目录，编写一些静态的html页面.echo "test" >index.html
+                     
+
+负载均衡的配置
+环境:
+10.0.0.201 负载均衡服务器:对外80
+10.0.0.201 虚拟主机(WEB)81
+
+10.0.32.111 端口号:80
+10.0.0.131 端口号：80
+
+
+步骤一、在201 32.111 131服务器上面都编辑Nginx.conf
+
+
+步骤二、在201 111 131 编辑一个虚拟机配置文件
+
+
+步骤三、在201上面编辑负载均衡的配置文件
+
+步骤四、启动服务
+
+
+练习题目如下：
+企业需要建立3个网站
+www.gongda1.com 
+www.gongda2.com
+www.gongda3.com
+要求安装Nginx，开3个虚拟主机
+要求在浏览器里面输入：
+http://www.gongda1.com 
+返回内容为:this gongda1
+
+http://www.gongda2.com 
+返回内容为:this gongda2
+
+http://www.gongda3.com 
+返回内容为:this gongda3
+
+
+                   
+                      
+                      
+                      
+                         
+                         
+                            
+
+
+NGINX
+             一、什么是Nginx？
+很多人对apache非常的熟悉，Nginx和Apache类似，都属于Web容器，同时也是一款高性能的
+HTTP和反向代理软件，发音(engine x)
+
+二、为什么要选择Nginx
+Nginx和Apache最大的区别:
+（1）Apache处理速度非常慢，而且占用很多内存资源，Nginx正好相反，
+(2)在功能Apache的所有模块都是支持动静态编译，而Nginx都是静态编译
+(3)Apache对FCGI的支持不好，而Nginx对FCGI支持非常的好.
+(4)在处理链接上，Nginx支持epoll，而Apache却不支持
+(5)从安装包看Nginx只有百K,Apache都按照M以算，非常的庞大.
+                                                
+三、Nginx的优势
+（1）作为WEB服务器，Nginx处理静态文件，索引文件 自动搜索的效率非常之高
+
+(2)作为代理服务器Nginx可以实现反向代理加速。提高网站的运行速度
+
+(3)做负载均衡器,Nginx可以在内部直接支持Rails和PHP，可以支持HTTP代理服务器对外进行服务，同时还支持简单的容错利用算法进行负载
+(4)在性能方面，Nginx专门为性能优化而开发的，支持最并发链接数为5万.
+
+(5)稳定方面 CPU占用资源非常低，官方表示Nginx保持1万个没有活动的链接，占用2.5M内存，官方声称在这种状态DDOS攻击是完全无效的.
+
+(6)在高性能方面，Nginx支持热部署，启动速度特别迅速，因此可以不间断服务的情况下，对软件的版本配置或者升级，不影响现网业务，运行几个月也不需要启动，几乎可以做7*24小时不间断运行.
+
+四、Nginx的模块工作原理
+Nginx由内核与模块组成，内核的设计非常小巧和简洁，完成的工作也是非常的简单，通过配置文件
+将客户端请求映射到一个location block当中，然后通过这个location中的配置每个指令调用不同模块，从而完成相应的工作.
+    Nginx的模块从结构分:
+    核心模块包含了:http模块，event模块，mail模块
+    基础模块包含了:http Access模块 Http FastCGI模块 Http Proxy 模型和HTTP Rewrite模块.
+    第三方模块:Http upstream request模块，Notice模块和Http Access key模块
+    
+    以上模块从功能分为3个大类:
+    (1)Handerls(处理模块)此类模块直接请求，并且将输出内容和修改Haders信息操作,
+    Handerls处理器模块只有一个
+    (2)Filters（过滤模块) 主要针对其它的处理模块输出内容和进修修改，最后由Nginx输出.
+    (3)Proxies(代理模块)，此模块Nginx的HTTP upstream之类的模块，这些模块实现了后端服务比如:FastCGI的信息交互,实现代理服务和负载均衡.
+    
+    
+    HTTP发出请求
+      |
+      |
+     \|/
+    Nginx内核
+      |
+      |
+ 选择一个Handlers处理模块
+      |
+      |
+    Handlers模块进行处理-----》交给Filters(过滤模块)-->响应HTTP请求
+在工作方式上，Nginx分为单进程和双进程两种，Nginx默认工作方式为单进程工作
+
+#===============================================================
+五、Nginx的安装与配置
+(1)安装依赖库
+# yum -y install gcc openssl-devel zlib-devel
+
+安装pcre-delvel库pcre-8.01.tar.gz
+# cd /soft/
+# tar xf pcre-8.01.tar.gz -C tmp/
+# cd tmp/pcre-8.01/
+#./configure && make && make install
+
+安装libmd5 libmd5-0.8.2b.tar.gz
+# cd /soft/
+#tar xf libmd5-0.8.2b.tar.gz -C tmp/
+
+(2)安装Nginx 
+# useradd user_00 -g users -s /sbin/nologin 
+# cd /soft/
+# tar -xvf nginx-0.8.55.tar.gz -C tmp/
+# cd tmp/nginx-0.8.55/
+./configure --user=user_00 --group=users --with-http_realip_module --with-http_stub_status_module --with-http_gzip_static_module --with-md5=/soft/md5/ --with-sha1=auto/lib/sha1 --with-pcre=/soft/pcre-8.01/ --without-select_module --without-poll_module --without-http_ssi_module --without-http_userid_module --without-http_geo_module --without-http_map_module --without-http_memcached_module --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module --prefix=/usr/local/services/nginx-0.8.55
+# make >/dev/null && make install >/dev/null
+编译参数详解：
+--with-http_realip_module 
+此模块支持显示真实来源IP地址，主要用于NGINX做前端负载均衡服务器使用。
+
+-with-http_stub_status_module 
+这个模块可以取得一些nginx的运行状态， 
+
+--with-http_gzip_static_module 
+这个模块在一个预压缩文件传送到开启Gzip压缩的客户端之前检查是否已经存在以“.gz”结尾的压缩文件，这样可以防止文件被重复压缩。
+
+--with-md5=/soft/md5/ 
+设定md5库文件路径
+
+--with-sha1=auto/lib/sha1 
+设定sha1库文件路径
+--with-pcre=/soft/pcre-8.01 
+设定PCRE库路径
+
+--without-select_module 
+标准连接模式。默认情况下自动编译方式。您可以启用或禁用通过使用-select_module和不带- select_module配置参数这个模块
+
+--without-poll_module 
+不使用poll模块
+
+--without-http_ssi_module 
+不使用ngx_http_ssi_module模块，此模块处理服务器端包含文件(ssi)的处理.
+
+--without-http_userid_module 
+不使用ngx_http_userid_module模块
+
+--without-http_geo_module 
+这个模块基于客户端的IP地址创建一些ngx_http_geoip_module变量，并与MaxMindGeoIP文件进行匹配，该模块仅用于 0.7.63和0.8.6版本之后。但效果不太理想，对于城市的IP记录并不是特别准确，不过对于网站的来源访问区域的分析大致有一定参考性
+。
+--without-http_map_module 
+不使用ngx_http_map_module模块
+
+--without-http_memcached_module 
+不使用ngx_http_memcached_module模块
+
+--without-mail_pop3_module 
+不允许ngx_mail_pop3_module模块
+
+--without-mail_imap_module 
+不允许ngx_mail_imap_module模块
+
+--without-mail_smtp_module 
+不允许ngx_mail_smtp_module模块
+
+
+
+
+
+
+4.4、编辑主配置文件
+配置文件位置:/usr/local/nginx/conf/nginx.conf 
+1.	Nginx配置文件分为4个部分 
+2.	main(全局设置）
+3.	server(主机设置)
+4.	upstream(负载均衡设置)
+5.	localtion(URL匹配特定位置的设置)
+这四个 server继承main  location继承server 
+upstream即不会继承 其它设置也不会被继承.
+
+
+#vim /usr/local/nginx/conf/nginx.conf 
+#==================================一全局配置#========================
+user  user_00 users;  #这个模块指令，指Nginx Worker 运用的用户和组，默认为nobody
+worker_processes  8;  #指定了要开启的进程数，每进程占用10M~12M的内存，建议和CPU的核心数量一样多的进程就行了。
+
+
+error_log  logs/error.log; #全局错误日志
+#error_log  logs/error.log  notice; 
+#error_log  logs/error.log  info;   
+  
+pid        logs/nginx.pid;  #:用来指定进程ID的存储位置.
+
+
+#Specifies the value for maximum file descriptors that can be opened by this process.
+#events 用来指定Nginx工作模式以及连接数上限
+events {
+    use epoll;  #使用epoll高效模式，适用于Linux,Unix使用kqueue
+    worker_connections  100000; #定义Ningx没个进程最大的连接数。默认为1024，受到文件句柄的约束。
+}
+worker_rlimit_nofile 100000; #打开的文件句柄数量最高为10万
+
+#==================================二、HTTP配置========================
+http {
+    include       mime.types;  #实现对配置文件所包含的文件设定
+    default_type  application/octet-stream; #属于HTTP核心模块，默认设定为二进制流
+    server_tokens off;   #禁止错误页面里显示nginx的版本号
+
+	# 定义日志处理的格式
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+	# 定义它的hash表为128K
+    server_names_hash_bucket_size 128;
+    client_header_buffer_size 32k; #客户端请求头部的缓冲区大小，一般一个请求头的大小不会超过1k
+    large_client_header_buffers 4 32k; #客户请求头缓冲大小 nginx默认会用client_header_buffer_size这个buffer来读取header值
+    client_max_body_size 8m; #设定通过nginx上传文件的大小
+
+	#sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，
+     #对于普通应用，必须设为on。
+	 #如果用来进行下载等应用磁盘IO重负载应用，可设置为off，以平衡磁盘与网络IO处理速度，降低系统uptime。
+    sendfile          on;
+    tcp_nopush        on; #此选项允许或禁止使用socke的TCP_CORK的选项，此选项仅在使用sendfile的时候使用
+    tcp_nodelay       on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout 60; #keepalive超时时间。连接保持活动时间超过这个，将被关闭掉
+
+	#===================重要位置============
+    fastcgi_connect_timeout 300; #指定连接到后端FastCGI的超时时间。
+    fastcgi_send_timeout 300; #向FastCGI传送请求的超时时间，这个值是指已经完成两次握手后向FastCGI传送请求的超时时间。
+    fastcgi_read_timeout 300; #接收FastCGI应答的超时时间，这个值是指已经完成两次握手后接收FastCGI应答的超时时间。
+    fastcgi_buffer_size 254k; #指定读取FastCGI应答第一部分需要用多大的缓冲区
+    fastcgi_buffers 16 256k; #指定本地需要用多少和多大的缓冲区来缓冲FastCGI的应答。
+    fastcgi_busy_buffers_size 512k; #这个指令我也不知道是做什么用，只知道默认值是fastcgi_buffers的两倍。
+    fastcgi_temp_file_write_size 512k; #在写入fastcgi_temp_path时将用多大的数据块，默认值是fastcgi_buffers的两倍。
+
+    gzip              on; #该指令用于开启或关闭gzip模块(on/off)
+    gzip_min_length   1k; #设置允许压缩的页面最小字节数，页面字节数从header头得content-length中进行获取
+    gzip_buffers      4 16k; #设置系统获取几个单位的缓存用于存储gzip的压缩结果数据流
+    gzip_http_version 1.0; #识别http的协议版本
+    gzip_comp_level   2;   #gzip压缩比，1压缩比最小处理速度最快
+	#匹配mime类型进行压缩，无论是否指定,”text/html”类型总是会被压缩的
+    gzip_types        text/plain application/x-javascript text/css application/xml text/javascript;
+    gzip_vary         on; #和http头有关系，加个vary头，给代理服务器用的
+
+    charset      utf-8;  #字符集为utf-8
+
+    access_log   off;    # 日常日志关闭
+    log_not_found off;   # 日常日志关闭
+
+        error_page  400 403 405 408  /40x.html;  # 错误返回页面
+        error_page  500 502 503 504  /50x.html;  # 错误返回页面
+	#===================Server虚拟机配置保持默认============
+    server {
+        listen       80 default;   #默认监听端口号为80
+        server_name  _;
+	return       444;
+    }
+#===================自定义虚拟机配置文件===========
+include vhost/vhost.www.fanhougame.com;
+
+}
+
+主配虚拟Server配置文件如下:
+    server {
+        listen       80 ; #监听端口号
+		#域名为
+        server_name  10.0.0.201;
+        # 指定网站的目录
+		root         /data/www/oa.com/www.fanhougame.com ;
+
+		# localtion模块指定网站首页名称
+        location / {
+            index index.php index.html index.htm;
+            if (!-e $request_filename) {
+                return 444;
+            }
+        }
+
+		#:返回的错误信息
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/local/nginx/html;
+        }
+
+		#可以指定多个localtion进行不同的指令处理，这里是指定php的sock
+        location ~ \.php$ {
+            fastcgi_pass   unix:/tmp/php-cgi-5313-web.sock;
+            fastcgi_index  index.php;
+            include        fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SERVER_NAME $http_host;
+            fastcgi_ignore_client_abort on;
+        }
+
+		#指定对网页图片格式进行缓存max表示10年，也可以是30d(天)
+        location ~ \.(swf|js|css|xml|gif|jpg|jpeg|png|bmp)$ {
+            error_log    off;
+            access_log   off;
+			#expires      30d;
+            expires      max;
+        }
+    }
+
+4.5、启动与平滑重启
+# cd /usr/local/services/nginx-0.8.55/sbin/
+# ./nginx –t 检测配置文件是否有错误
+# ./nginx 启动nginx
+# ./nginx -s reload
+####################################################################################
+
+六、	Nginx常用配置实例
+6.1、负载均衡配置实例环境:
+Master:10.0.0.201
+Master Web 10.0.0.201:81
+Slave1 Web 10.0.0.202:80
+Slave2 Web 10.0.0.203:80
+
+
+6.2、在201编辑主配置文件nginx.conf
+# vim /usr/local/service/nginx/conf/nginx.conf
+
+
+6.3、在201上面编辑虚拟主机配置文件vhost.aatest.com
+# vim /usr/local/service/nginx/conf/vhost/vhost.aatest.com
+
+
+6.4、在201上面编辑负载均很配置文件
+# vim /usr/local/service/nginx/conf/vhost/vhost.fuzai
+upstream www.aatest.com {
+      server  10.0.0.201:81 weight=1 max_fails=3 fail_timeout=20s;
+      server  10.0.0.202:80 weight=1 max_fails=3 fail_timeout=20s;
+      server  10.0.0.203:80 weight=1 max_fails=3 fail_timeout=20s;
+}
+
+server{
+    listen 80;
+    server_name www.aatest.com;
+    location / {
+        proxy_pass         http://www.aatest.com;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+
+6.5、在202和203编辑如下主配置文件
+
+# vim /usr/local/service/nginx/conf/nginx.conf
+
+
+
+6.5、在202和203编辑如下虚拟主机配置文件
+# vim /usr/local/service/nginx/conf/www.aatest.com
+    server {
+        listen       80 ; #监听端口号
+        #域名为
+        server_name  www.aatest.com;
+        # 指定网站的目录
+                root         /opt/zeng ;
+
+                # localtion模块指定网站首页名称
+        location / {
+            index index.php index.html index.htm;
+            if (!-e $request_filename) {
+                return 444;
+            }
+        }
+
+                #:返回的错误信息
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/local/nginx/html;
+        }
+
+                #可以指定多个localtion进行不同的指令处理，这里是指定php的sock
+        location ~ \.php$ {
+            fastcgi_pass   unix:/tmp/php-cgi-5313-web.sock;
+            fastcgi_index  index.php;
+            include        fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SERVER_NAME $http_host;
+            fastcgi_ignore_client_abort on;
+        }
+
+                #指定对网页图片格式进行缓存max表示10年，也可以是30d(天)
+        location ~ \.(swf|js|css|xml|gif|jpg|jpeg|png|bmp)$ {
+            error_log    off;
+            access_log   off;
+                        #expires      30d;
+            expires      max;
+        }
+    }
+
+
+                      
+总结如下：
+单机WEB配置
+1、安装库
+2、安装Nginx
+3、编辑Nginx.conf主文件(注意编辑完虚拟配置文件之后。要主文件相关连(include file>
+4、编辑虚拟机的配置文件
+5、启动服务
+6、建立网站对应的目录，编写一些静态的html页面.echo "test" >index.html
+                     
+
+负载均衡的配置
+环境:
+10.0.0.201 负载均衡服务器:对外80
+10.0.0.201 虚拟主机(WEB)81
+
+10.0.32.111 端口号:80
+10.0.0.131 端口号：80
+
+
+步骤一、在201 32.111 131服务器上面都编辑Nginx.conf
+
+
+步骤二、在201 111 131 编辑一个虚拟机配置文件
+
+
+步骤三、在201上面编辑负载均衡的配置文件
+
+步骤四、启动服务
+
+
+练习题目如下：
+企业需要建立3个网站
+www.gongda1.com 
+www.gongda2.com
+www.gongda3.com
+要求安装Nginx，开3个虚拟主机
+要求在浏览器里面输入：
+http://www.gongda1.com 
+返回内容为:this gongda1
+
+http://www.gongda2.com 
+返回内容为:this gongda2
+
+http://www.gongda3.com 
+返回内容为:this gongda3
+
+
+                   
+                      
+                      
+                      
+                         
+                         
+                            
+
+

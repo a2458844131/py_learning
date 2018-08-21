@@ -1,0 +1,66 @@
+CP RM MV
+cp命令的使用，结合通配符号的使用
+cp -a xxx yyy   (alias cp="cp -i")
+cp - copy files and directories
+-i, --interactive  交互式提醒功能
+              prompt  before  overwrite (overrides a
+              previous -n option)
+-R, -r, --recursive
+              copy directories recursively 将文件夹下的子文件夹一起拷贝
+-f --force 强制复制
+================================================
+rm 删除文件或者文件夹
+    1．命令格式：
+    rm [选项] 文件… 
+    2．命令功能：
+    删除一个目录中的一个或多个文件或目录，如果没有使用- r选项，则rm不会删除目录。如果使用 rm 来 删除文件，通常仍可以将该文件恢复原状。
+    3．命令参数：
+    -f, --force    忽略不存在的文件，从不给出提示。
+    -i, --interactive 进行交互式删除
+    -r, -R, --recursive   指示rm将参数中列出的全部目录和子目录均递归地删除。
+    -v, --verbose    详细显示进行的步骤
+      	--help     显示此帮助信息并退出
+      	--version  输出版本信息并退出
+==============================================
+    rm结合通配符号的使用
+    * 通配任意个字符
+    ？ 通配一个字符
+================================================
+mv
+   mv - move (rename) files
+    快捷键 F2
+    当后面接的目的地文件存在的时候就是移动，不存在的时候就是改名（重命名）
+
+CP RM MV
+cp命令的使用，结合通配符号的使用
+cp -a xxx yyy   (alias cp="cp -i")
+cp - copy files and directories
+-i, --interactive  交互式提醒功能
+              prompt  before  overwrite (overrides a
+              previous -n option)
+-R, -r, --recursive
+              copy directories recursively 将文件夹下的子文件夹一起拷贝
+-f --force 强制复制
+================================================
+rm 删除文件或者文件夹
+    1．命令格式：
+    rm [选项] 文件… 
+    2．命令功能：
+    删除一个目录中的一个或多个文件或目录，如果没有使用- r选项，则rm不会删除目录。如果使用 rm 来 删除文件，通常仍可以将该文件恢复原状。
+    3．命令参数：
+    -f, --force    忽略不存在的文件，从不给出提示。
+    -i, --interactive 进行交互式删除
+    -r, -R, --recursive   指示rm将参数中列出的全部目录和子目录均递归地删除。
+    -v, --verbose    详细显示进行的步骤
+      	--help     显示此帮助信息并退出
+      	--version  输出版本信息并退出
+==============================================
+    rm结合通配符号的使用
+    * 通配任意个字符
+    ？ 通配一个字符
+================================================
+mv
+   mv - move (rename) files
+    快捷键 F2
+    当后面接的目的地文件存在的时候就是移动，不存在的时候就是改名（重命名）
+

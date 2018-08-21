@@ -1,0 +1,278 @@
+TEST
+1、test命令测试文件状态
+文件状态测试-d目录
+-s文件长度大于0、非空
+-f正规文件
+-w可写
+-L符号连接
+-u文件有suid位设置
+-r可读
+-x可执行
+ test一般有两种格式，即：
+test condition 或 [ condition ]
+
+第一种方式：
+# mkdir /shell && cd /shell
+# touch 1.txt
+# test -w 1.txt;echo $?
+# test -s 1.txt;echo $?
+# test -f 1.txt;echo $?
+# test -L 1.txt;echo $?
+# test -u 1.txt;echo $?
+# test -r 1.txt;echo $?
+# test -x 1.txt;echo $?
+
+
+
+
+第二种方式：
+#[ -w 1.txt ];echo $?
+#[ -s 1.txt ];echo $?
+#[ -f 1.txt ];echo $?
+#[ -L 1.txt ];echo $?
+#[ -u 1.txt ];echo $?
+#[ -r 1.txt ];echo $?
+#[ -x 1.txt ];echo $?
+
+
+
+2、测试时使用逻辑操作符
+测试文件状态是否为OK，但是有时要比较两个文件状态。 shell提供三种逻辑操作完成此
+功能。
+-a 逻辑与，操作符两边均为真，结果为真，否则为假。
+-o 逻辑或，操作符两边一边为真，结果为真，否则为假。
+! 逻辑否，条件为假，结果为真.
+
+#[ -w 1.txt -a -w 2.txt ];echo $?  
+1.txt 和2.txt必须都用有-w可写的权限。返回至才为0，
+否则非0，-a 通俗理解就是“和 和xxxx同时拥有-w 权限”
+
+#[ -x 1.txt -o -x 2.txt ];echo $? 
+1.txt 和 2.txt只要其中一个具备-x 满足则返回0
+通俗理解就是“-o 或 或者的意思”
+
+# [ ! -x 2.txt ];echo $? 
+!就是取返的意思，如果2.txt 没有-x权限，则返回0
+否则返回1
+
+
+
+
+3、字符串测试
+字符串测试是错误捕获很重要的一部分，特别在测试用户输入或比较变量时尤为重要。
+字符串测试有5种格式：
+= 两个字字符串相等
+! = 两个字符串不等
+-z 空串
+-n 非空串 
+
+#aa="1"
+#bb="2"
+#[ "$aa" = "$bb" ];echo $?
+
+#aa="1"
+#bb="1"
+#[ "$aa" != "$bb" ];echo $?
+
+#aa="1"
+#[ -z "$aa" ];echo $?
+
+#aa="1"
+#[ -n "$aa" ];echo $?
+
+
+4、测试数值
+测试数值可以使用许多操作符，一般格式如下：
+-eq 数值相等。
+-ne 数值不相等。
+-gt 第一个数大于第二个数。
+-lt 第一个数小于第二个数。
+-le 第一个数小于等于第二个数。
+-ge 第一个数大于等于第二个数。
+
+#aa="1"
+#[ "$aa" -eq "1" ];echo $?
+
+#aa="1"
+#[ "$aa" -ne "1" ];echo $?
+
+#aa="1"
+#[ "$aa" -gt 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -lt 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -le 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -ge 1 ];echo $?
+
+
+
+
+
+5、expr用法
+expr命令一般用于整数值，但也可用于字符串。一般格式为:
+#expr 10 + 10  注意空格
+#expr 900 + 600
+#expr 30 / 3
+#expr 30 / 3 / 2
+#expr 30 \* 3
+
+判断aa变量里面是否为数字
+#aa="xx"
+#expr $aa + 1;echo $? 2
+
+#vim test.sh
+#!/bin/bash
+echo -n "Please you enter you old:"
+read zytest
+cc=`expr $zytest + 1 >/dev/null 2>&1;echo $?`
+if [ "$cc" -eq 0 ]
+then
+     echo "you old is:$zytest"
+else
+       echo "Enter error,old must be number"
+       exit 1
+fi
+
+TEST
+1、test命令测试文件状态
+文件状态测试-d目录
+-s文件长度大于0、非空
+-f正规文件
+-w可写
+-L符号连接
+-u文件有suid位设置
+-r可读
+-x可执行
+ test一般有两种格式，即：
+test condition 或 [ condition ]
+
+第一种方式：
+# mkdir /shell && cd /shell
+# touch 1.txt
+# test -w 1.txt;echo $?
+# test -s 1.txt;echo $?
+# test -f 1.txt;echo $?
+# test -L 1.txt;echo $?
+# test -u 1.txt;echo $?
+# test -r 1.txt;echo $?
+# test -x 1.txt;echo $?
+
+
+
+
+第二种方式：
+#[ -w 1.txt ];echo $?
+#[ -s 1.txt ];echo $?
+#[ -f 1.txt ];echo $?
+#[ -L 1.txt ];echo $?
+#[ -u 1.txt ];echo $?
+#[ -r 1.txt ];echo $?
+#[ -x 1.txt ];echo $?
+
+
+
+2、测试时使用逻辑操作符
+测试文件状态是否为OK，但是有时要比较两个文件状态。 shell提供三种逻辑操作完成此
+功能。
+-a 逻辑与，操作符两边均为真，结果为真，否则为假。
+-o 逻辑或，操作符两边一边为真，结果为真，否则为假。
+! 逻辑否，条件为假，结果为真.
+
+#[ -w 1.txt -a -w 2.txt ];echo $?  
+1.txt 和2.txt必须都用有-w可写的权限。返回至才为0，
+否则非0，-a 通俗理解就是“和 和xxxx同时拥有-w 权限”
+
+#[ -x 1.txt -o -x 2.txt ];echo $? 
+1.txt 和 2.txt只要其中一个具备-x 满足则返回0
+通俗理解就是“-o 或 或者的意思”
+
+# [ ! -x 2.txt ];echo $? 
+!就是取返的意思，如果2.txt 没有-x权限，则返回0
+否则返回1
+
+
+
+
+3、字符串测试
+字符串测试是错误捕获很重要的一部分，特别在测试用户输入或比较变量时尤为重要。
+字符串测试有5种格式：
+= 两个字字符串相等
+! = 两个字符串不等
+-z 空串
+-n 非空串 
+
+#aa="1"
+#bb="2"
+#[ "$aa" = "$bb" ];echo $?
+
+#aa="1"
+#bb="1"
+#[ "$aa" != "$bb" ];echo $?
+
+#aa="1"
+#[ -z "$aa" ];echo $?
+
+#aa="1"
+#[ -n "$aa" ];echo $?
+
+
+4、测试数值
+测试数值可以使用许多操作符，一般格式如下：
+-eq 数值相等。
+-ne 数值不相等。
+-gt 第一个数大于第二个数。
+-lt 第一个数小于第二个数。
+-le 第一个数小于等于第二个数。
+-ge 第一个数大于等于第二个数。
+
+#aa="1"
+#[ "$aa" -eq "1" ];echo $?
+
+#aa="1"
+#[ "$aa" -ne "1" ];echo $?
+
+#aa="1"
+#[ "$aa" -gt 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -lt 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -le 1 ];echo $?
+
+#aa="1"
+#[ "$aa" -ge 1 ];echo $?
+
+
+
+
+
+5、expr用法
+expr命令一般用于整数值，但也可用于字符串。一般格式为:
+#expr 10 + 10  注意空格
+#expr 900 + 600
+#expr 30 / 3
+#expr 30 / 3 / 2
+#expr 30 \* 3
+
+判断aa变量里面是否为数字
+#aa="xx"
+#expr $aa + 1;echo $? 2
+
+#vim test.sh
+#!/bin/bash
+echo -n "Please you enter you old:"
+read zytest
+cc=`expr $zytest + 1 >/dev/null 2>&1;echo $?`
+if [ "$cc" -eq 0 ]
+then
+     echo "you old is:$zytest"
+else
+       echo "Enter error,old must be number"
+       exit 1
+fi
+

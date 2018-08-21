@@ -1,0 +1,116 @@
+LVM
+Logical Volume Manager，
+逻辑卷管理屏蔽了底层磁盘布局，便于动态调整磁盘容量
+相对传统分区方式的有下列优点
+    空间利用率高
+    可以在线扩展容量
+    数据备份方便
+    可随意定义逻辑卷卷标
+/boot分区用于存放引导文件，不能应用LVM机制
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+VM机制的基本概念
+PV（Physical Volume，物理卷） 整个硬盘，或使用fdisk等工具建立的普通分区 包括许多默认4MB大小的PE（Physical Extents，基本单元）
+VG（Volume Group，卷组）  一个或多个物理卷组合而成的整体
+LV（Logical Volume，逻辑卷） 从卷组中分割出的一块空间，用于建立文件系统LE（Logical Extents）与PE大小相同并一一对应
+功能	                 物理卷管理	    卷组管理	逻辑卷管理
+Scan       扫描   	pvscan	vgscan	lvscan
+Create    建立	    pvcreate	vgcreate	lvcreate
+Display   显示	    pvdisplay	vgdisplay	lvdisplay
+Remove  删除	    pvremove	vgremove	lvremove
+Extend   扩展		    vgextend vgreduce	lvextend lvresize
+建立命令的用法
+pvcreate  设备名
+vgcreate  卷组名  物理卷名1  物理卷名2
+lvcreate   -L  大小  -n  逻辑卷名  卷组名
+推荐步骤：PV  VG  LV  格式化，挂载使用文件系统
+为逻辑卷扩容使用lvextend命令为逻辑卷 mail扩充容量 
+从卷组 mail_store 上再划出10GB给逻辑卷mail
+使用resize2fs命令更新系统识别的文件系统大小
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+调整逻辑卷大小命令
+lvextend  -L  +大小  /dev/卷组名/逻辑卷名  
+lvresize  -L +/-大小 /dev/卷组名/逻辑卷名 
+如果要增大逻辑卷，先用增大逻辑卷，再用resize2fs增大文件系统
+可以在线增大逻辑卷
+如果要缩小逻辑卷，先用resizefs缩小文件系统再缩小逻辑卷
+必须先卸载文件系统
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+千万不要在没有关闭LVM的情况下删除分区
+正确关闭LVM的步骤
+umount卸载lvm文件系统
+lvremove删除逻辑卷
+vgremove删除卷组
+pvremove删除物理卷
+清除/etc/fstab中LVM的挂载记录
+fdisk修改分区ID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pv、vg、lv都正常，但文件系统不正常
+模拟故障
+备份逻辑卷
+   dd if=/dev/vg0/lv0 of=lv0.bak
+   模拟对逻辑卷的破坏操作
+         dd if=/dev/zero of=/dev/vg0/lv0 bs=512 count=4
+    检查是否能挂载该分区 
+        报错：mount: you must specify the filesystem type
+    对逻辑卷进行修复 
+        fsck -yt ext3 /dev/vg0/lv0
+    再次挂载该分区
+
+LVM
+Logical Volume Manager，
+逻辑卷管理屏蔽了底层磁盘布局，便于动态调整磁盘容量
+相对传统分区方式的有下列优点
+    空间利用率高
+    可以在线扩展容量
+    数据备份方便
+    可随意定义逻辑卷卷标
+/boot分区用于存放引导文件，不能应用LVM机制
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+VM机制的基本概念
+PV（Physical Volume，物理卷） 整个硬盘，或使用fdisk等工具建立的普通分区 包括许多默认4MB大小的PE（Physical Extents，基本单元）
+VG（Volume Group，卷组）  一个或多个物理卷组合而成的整体
+LV（Logical Volume，逻辑卷） 从卷组中分割出的一块空间，用于建立文件系统LE（Logical Extents）与PE大小相同并一一对应
+功能	                 物理卷管理	    卷组管理	逻辑卷管理
+Scan       扫描   	pvscan	vgscan	lvscan
+Create    建立	    pvcreate	vgcreate	lvcreate
+Display   显示	    pvdisplay	vgdisplay	lvdisplay
+Remove  删除	    pvremove	vgremove	lvremove
+Extend   扩展		    vgextend vgreduce	lvextend lvresize
+建立命令的用法
+pvcreate  设备名
+vgcreate  卷组名  物理卷名1  物理卷名2
+lvcreate   -L  大小  -n  逻辑卷名  卷组名
+推荐步骤：PV  VG  LV  格式化，挂载使用文件系统
+为逻辑卷扩容使用lvextend命令为逻辑卷 mail扩充容量 
+从卷组 mail_store 上再划出10GB给逻辑卷mail
+使用resize2fs命令更新系统识别的文件系统大小
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+调整逻辑卷大小命令
+lvextend  -L  +大小  /dev/卷组名/逻辑卷名  
+lvresize  -L +/-大小 /dev/卷组名/逻辑卷名 
+如果要增大逻辑卷，先用增大逻辑卷，再用resize2fs增大文件系统
+可以在线增大逻辑卷
+如果要缩小逻辑卷，先用resizefs缩小文件系统再缩小逻辑卷
+必须先卸载文件系统
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+千万不要在没有关闭LVM的情况下删除分区
+正确关闭LVM的步骤
+umount卸载lvm文件系统
+lvremove删除逻辑卷
+vgremove删除卷组
+pvremove删除物理卷
+清除/etc/fstab中LVM的挂载记录
+fdisk修改分区ID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pv、vg、lv都正常，但文件系统不正常
+模拟故障
+备份逻辑卷
+   dd if=/dev/vg0/lv0 of=lv0.bak
+   模拟对逻辑卷的破坏操作
+         dd if=/dev/zero of=/dev/vg0/lv0 bs=512 count=4
+    检查是否能挂载该分区 
+        报错：mount: you must specify the filesystem type
+    对逻辑卷进行修复 
+        fsck -yt ext3 /dev/vg0/lv0
+    再次挂载该分区
+

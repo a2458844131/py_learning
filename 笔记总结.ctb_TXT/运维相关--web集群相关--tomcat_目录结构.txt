@@ -1,0 +1,416 @@
+TOMCAT 目录结构
+  
+
+ 目录结构及用途
+
+
+目录
+ 
+用途
+ 
+
+bin
+ 
+包含启动/关闭脚本
+ 
+
+conf
+
+ 
+ 
+包含不同的配置文件,包括 server.xml(Tomcat的主要配置文件)和为不同的Tomcat配置的web应用设置缺省值的文件web.xml
+ 
+
+doc
+ 
+包含各种Tomcat文档
+ 
+
+lib
+ 
+包含Tomcat使用的jar文件.unix平台此目录下的任何文件都被加到Tomcat的classpath中
+ 
+
+Logs
+ 
+存放Tomcat的日志文件
+ 
+
+/server
+ 
+包含3个子目录：classes、lib和webapps
+ 
+
+src
+ 
+ServletAPI源文件.先别高兴,这些只有些必须在Servlet容器内实现的空接口和抽象类
+ 
+
+webapp
+ 
+包含web项目示例，当发布web应用时，默认情况下把web文件夹放于此目录下
+ 
+
+work
+ 
+Tomcat自动生成,放置Tomcat运行时的临时文件(如编译后的JSP文件).如在Tomcat运行时删除此目录.JSP页面将不能运行.[ jsp生成的sevlet放在此目录下]
+ 
+
+classes
+
+ 
+ 
+你可以创建此目录来添加一些附加的类到类路径中.任何你加到此目录中的类都可在Tomcat的类路径中找到自身.
+ 
+
+Common/bin
+ 
+存在Tomcat服务器及所有的web应用程序可以访问的JAR文件
+ 
+
+Server/bin
+ 
+存在Tomcat服务器运行所需的各种JAR文件。
+ 
+
+Share/Bin
+ 
+存在所有的web应用程序可以访问的JAR文件(不能被tomcat访问)
+ 
+
+/server/webapps
+ 
+存放tomcat两个自带Web应用 admin应用和manager应用
+ 
+
+
+
+
+ 从表2 中可以看到，Server/bin，Share/Bin，Common/bin目录下都可以放JAR，他们的区别在于：
+
+在Server/bin目录下的JAR文件只能被Tomcat服务器访问。
+
+在Share/Bin，目录下的JAR文件可以被所有的web应用程序访问，但不能被Tomcat服务器访问。
+
+在Common/bin目录下的JAR文件可以被Tomcat服务器和所有的web应用程序访问。
+
+此外，对于后面介绍Java Web应用程序，在它的WEB-INF目录下，也可以建立lib子目录，在lib子目录下可以存放各种JAR文件，这些JAR文件只能被当前WEB应用程序所访问。
+
+ 
+
+ 
+
+Java Web应用由一组静态HTML页、Servlet、JSP和其他相关的class组成。每种组件在Web应用中都有固定的存放目录。Web应用的配置信息存放在web.xml文件中。在发布某些组件(如Servlet)时，必须在web.xml文件中添加相应的配置信息。 
+在Tomcat应用服务器上发布Web应用程序，应该在<CATALINA_HOME>/webapps目录下创建这个Web应用的目录结构。
+ Web应用的目录结构
+
+
+
+目 　录
+ 
+描　　述
+ 
+
+/helloapp
+ 
+Web应用的根目录，所有的JSP和HTML文件都存放于此目录下
+ 
+
+/helloapp/WEB-INF
+ 
+存放Web应用的发布描述文件web.xml
+ 
+
+/helloapp/WEB-INF/classes
+ 
+存放各种class文件，Servlet类文件也放于此目录下
+ 
+
+/helloapp/WEB-INF/lib
+ 
+存放Web应用所需的各种JAR文件。例如，在这个目录下，可以存放JDBC驱动程序的JAR文件。
+ 
+
+注：在classes以及lib子目录下，都可以存放Java类文件。在运行过程中，Tomcat的类装载器先装载classes目录下的类，再装载lib.
+
+ 
+
+Tomcat的配置文件
+
+Tomcat的配置基于两个配置文件:
+
+1.server.xml - Tomcat的全局配置文件               2.web.xml - 在Tomcat中配置不同的关系环境
+
+ 
+
+server.xml
+
+server.xml是Tomcat的主配置文件.完成两个目标:
+
+1 提供Tomcat组件的初始配置.
+
+2 说明Tomcat的结构,含义,使得Tomcat通过实例化组件完成起动及构建自身, 如在server.xml所指定的
+
+ 
+
+server.xml种的重要元素:
+
+元素及其描述
+
+Server
+
+server.xml文件中最重要的元素.Server定义了一个Tomcat服务器.一般你不用对他担心太多.Server元素能包含Logger和ContextManager元素类型
+
+Logger
+
+此元素定义一个Logger对象,每个Logger都有一个名字去标识,也有一个纪录Logger的输出和冗余级别(描述此日志级别)和包含日志文件的路径.通常有servlet的Logger(ServletContext.log()处),JSP和Tomcat运行时的Logger.
+
+ContextManager
+
+ContextManager说明一套ContextInterceptor, RequestInterceptor , Context和他们的Connectors的配置及结构.ContextManager有几个随同提供的特性:
+
+1. 用来纪录调试信息的调试级别
+
+2. webapps/,conf/,logs/和所有已定义的环境的基本位置.用来使Tomcat可以在TOMCAT_HOME外的其他目录启动.
+
+3. 工作目录的名字
+
+ContextInterceptor&RequestInterceptor
+
+这些侦听器(interceptors)侦听具体发生在ContextManager中的事件.例如,ContextInterceptor侦听Tomcat的启动及终止事件,RequestInterceptor监视在它服务过程中用户请求需要通过的不同阶段.Tomcat的管理员不必知道太多关于侦听器的知识;另外,开发者应该知道这是如何在Tomcat中实现一个”全局”型的操作(例如安全性及每个请求日志)
+
+Connector
+
+Connector表示一个到用户的联接,不管是通过web服务器或直接到用户浏览器(在一个独立配置中).Connector负责管理Tomcat的工作线程和 读/写 连接到不同用户的端口的 请求/响应.Connector的配置包含如下信息:
+
+1.句柄类
+
+2.句柄监听的TCP/IP端口
+
+3.句柄服务器端口的TCP/IP的backlog.
+
+Context
+
+每个Context提供一个指向你放置你Web项目的Tomcat的下属目录。每个Context包含如下配置：
+
+1. Context放置的路径,可以是与ContextManager主目录相关的路径.
+
+2.纪录调试信息的调试级别
+
+3.可重载的标志.开发Servlet时,重载更改后的Servlet,这是一个非常便利的特性,你可以调试或用Tomcat测试新代码而不用停止或重新启动Tomcat.要打开重载,把reloadable设为真即可.这虽花费时间但可检测所发生的变化;更重要的事,鉴于,在一个装载类对象装入一个新的servlet时,类装载触发器可能会掷出一些错误.为避免这些问题,你可以设置可重载为假,这将停止重载功能.
+
+ 
+
+web.xml
+
+     Tomcat可以让用户通过将缺省的web.xml放入conf目录中来定义所有关系环境的web.xml的缺省值.建立一个新的关系环境时,Tomcat使用缺省的web.xml文件作为基本设置和应用项目特定的web.xml(放在应用项目的WEB-INF/web.xml文件)来覆盖这些缺省值.
+
+
+TOMCAT 目录结构
+  
+
+ 目录结构及用途
+
+
+目录
+ 
+用途
+ 
+
+bin
+ 
+包含启动/关闭脚本
+ 
+
+conf
+
+ 
+ 
+包含不同的配置文件,包括 server.xml(Tomcat的主要配置文件)和为不同的Tomcat配置的web应用设置缺省值的文件web.xml
+ 
+
+doc
+ 
+包含各种Tomcat文档
+ 
+
+lib
+ 
+包含Tomcat使用的jar文件.unix平台此目录下的任何文件都被加到Tomcat的classpath中
+ 
+
+Logs
+ 
+存放Tomcat的日志文件
+ 
+
+/server
+ 
+包含3个子目录：classes、lib和webapps
+ 
+
+src
+ 
+ServletAPI源文件.先别高兴,这些只有些必须在Servlet容器内实现的空接口和抽象类
+ 
+
+webapp
+ 
+包含web项目示例，当发布web应用时，默认情况下把web文件夹放于此目录下
+ 
+
+work
+ 
+Tomcat自动生成,放置Tomcat运行时的临时文件(如编译后的JSP文件).如在Tomcat运行时删除此目录.JSP页面将不能运行.[ jsp生成的sevlet放在此目录下]
+ 
+
+classes
+
+ 
+ 
+你可以创建此目录来添加一些附加的类到类路径中.任何你加到此目录中的类都可在Tomcat的类路径中找到自身.
+ 
+
+Common/bin
+ 
+存在Tomcat服务器及所有的web应用程序可以访问的JAR文件
+ 
+
+Server/bin
+ 
+存在Tomcat服务器运行所需的各种JAR文件。
+ 
+
+Share/Bin
+ 
+存在所有的web应用程序可以访问的JAR文件(不能被tomcat访问)
+ 
+
+/server/webapps
+ 
+存放tomcat两个自带Web应用 admin应用和manager应用
+ 
+
+
+
+
+ 从表2 中可以看到，Server/bin，Share/Bin，Common/bin目录下都可以放JAR，他们的区别在于：
+
+在Server/bin目录下的JAR文件只能被Tomcat服务器访问。
+
+在Share/Bin，目录下的JAR文件可以被所有的web应用程序访问，但不能被Tomcat服务器访问。
+
+在Common/bin目录下的JAR文件可以被Tomcat服务器和所有的web应用程序访问。
+
+此外，对于后面介绍Java Web应用程序，在它的WEB-INF目录下，也可以建立lib子目录，在lib子目录下可以存放各种JAR文件，这些JAR文件只能被当前WEB应用程序所访问。
+
+ 
+
+ 
+
+Java Web应用由一组静态HTML页、Servlet、JSP和其他相关的class组成。每种组件在Web应用中都有固定的存放目录。Web应用的配置信息存放在web.xml文件中。在发布某些组件(如Servlet)时，必须在web.xml文件中添加相应的配置信息。 
+在Tomcat应用服务器上发布Web应用程序，应该在<CATALINA_HOME>/webapps目录下创建这个Web应用的目录结构。
+ Web应用的目录结构
+
+
+
+目 　录
+ 
+描　　述
+ 
+
+/helloapp
+ 
+Web应用的根目录，所有的JSP和HTML文件都存放于此目录下
+ 
+
+/helloapp/WEB-INF
+ 
+存放Web应用的发布描述文件web.xml
+ 
+
+/helloapp/WEB-INF/classes
+ 
+存放各种class文件，Servlet类文件也放于此目录下
+ 
+
+/helloapp/WEB-INF/lib
+ 
+存放Web应用所需的各种JAR文件。例如，在这个目录下，可以存放JDBC驱动程序的JAR文件。
+ 
+
+注：在classes以及lib子目录下，都可以存放Java类文件。在运行过程中，Tomcat的类装载器先装载classes目录下的类，再装载lib.
+
+ 
+
+Tomcat的配置文件
+
+Tomcat的配置基于两个配置文件:
+
+1.server.xml - Tomcat的全局配置文件               2.web.xml - 在Tomcat中配置不同的关系环境
+
+ 
+
+server.xml
+
+server.xml是Tomcat的主配置文件.完成两个目标:
+
+1 提供Tomcat组件的初始配置.
+
+2 说明Tomcat的结构,含义,使得Tomcat通过实例化组件完成起动及构建自身, 如在server.xml所指定的
+
+ 
+
+server.xml种的重要元素:
+
+元素及其描述
+
+Server
+
+server.xml文件中最重要的元素.Server定义了一个Tomcat服务器.一般你不用对他担心太多.Server元素能包含Logger和ContextManager元素类型
+
+Logger
+
+此元素定义一个Logger对象,每个Logger都有一个名字去标识,也有一个纪录Logger的输出和冗余级别(描述此日志级别)和包含日志文件的路径.通常有servlet的Logger(ServletContext.log()处),JSP和Tomcat运行时的Logger.
+
+ContextManager
+
+ContextManager说明一套ContextInterceptor, RequestInterceptor , Context和他们的Connectors的配置及结构.ContextManager有几个随同提供的特性:
+
+1. 用来纪录调试信息的调试级别
+
+2. webapps/,conf/,logs/和所有已定义的环境的基本位置.用来使Tomcat可以在TOMCAT_HOME外的其他目录启动.
+
+3. 工作目录的名字
+
+ContextInterceptor&RequestInterceptor
+
+这些侦听器(interceptors)侦听具体发生在ContextManager中的事件.例如,ContextInterceptor侦听Tomcat的启动及终止事件,RequestInterceptor监视在它服务过程中用户请求需要通过的不同阶段.Tomcat的管理员不必知道太多关于侦听器的知识;另外,开发者应该知道这是如何在Tomcat中实现一个”全局”型的操作(例如安全性及每个请求日志)
+
+Connector
+
+Connector表示一个到用户的联接,不管是通过web服务器或直接到用户浏览器(在一个独立配置中).Connector负责管理Tomcat的工作线程和 读/写 连接到不同用户的端口的 请求/响应.Connector的配置包含如下信息:
+
+1.句柄类
+
+2.句柄监听的TCP/IP端口
+
+3.句柄服务器端口的TCP/IP的backlog.
+
+Context
+
+每个Context提供一个指向你放置你Web项目的Tomcat的下属目录。每个Context包含如下配置：
+
+1. Context放置的路径,可以是与ContextManager主目录相关的路径.
+
+2.纪录调试信息的调试级别
+
+3.可重载的标志.开发Servlet时,重载更改后的Servlet,这是一个非常便利的特性,你可以调试或用Tomcat测试新代码而不用停止或重新启动Tomcat.要打开重载,把reloadable设为真即可.这虽花费时间但可检测所发生的变化;更重要的事,鉴于,在一个装载类对象装入一个新的servlet时,类装载触发器可能会掷出一些错误.为避免这些问题,你可以设置可重载为假,这将停止重载功能.
+
+ 
+
+web.xml
+
+     Tomcat可以让用户通过将缺省的web.xml放入conf目录中来定义所有关系环境的web.xml的缺省值.建立一个新的关系环境时,Tomcat使用缺省的web.xml文件作为基本设置和应用项目特定的web.xml(放在应用项目的WEB-INF/web.xml文件)来覆盖这些缺省值.
+
+

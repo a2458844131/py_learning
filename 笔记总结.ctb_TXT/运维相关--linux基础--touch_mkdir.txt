@@ -1,0 +1,18 @@
+TOUCH MKDIR
+touch 创建空文件
+==============================================
+mkdir 创建文件夹
+    -p, --parents
+              no  error if existing, make parent directories as
+              needed
+    如果父目录以及路径不存在的话 接 -p选项 会自动创建所有的文件路径
+
+TOUCH MKDIR
+touch 创建空文件
+==============================================
+mkdir 创建文件夹
+    -p, --parents
+              no  error if existing, make parent directories as
+              needed
+    如果父目录以及路径不存在的话 接 -p选项 会自动创建所有的文件路径
+

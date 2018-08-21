@@ -1,0 +1,23 @@
+ALIAS
+alias 别名功能
+alias  查看
+alias   ddd="du -Sm --max-depth=1|sort -nr”
+    alias c=clear  定义c等于clear这个命令的别名，使用效果和clear一样，别名的名字可以自己定义，clear是系统的命令
+    这种方式定义的别名，重新启动后失效
+    alias  查看系统里定义的别名
+    alias c='clear'
+    alias cp='cp -i'  
+    alias l.='ls -d .* --color=auto'
+    alias ll='ls -l --color=auto'
+    alias ls='ls --color=auto'
+    alias mv='mv -i'
+    alias rm='rm -i'
+    alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+     alias mm='ls -l' 定义别名mm的效果是ls -l
+    mm
+    total 12
+    dr-xr-xr-x 5 root root 4096 Mar 30 10:59 boot
+    rw-r--r-- 1 root root  199 Mar 30 11:02 hosts
+    drwxr-xr-x 3 root root 4096 Mar 30 11:00 liufu
+    unalias mm  取消mm的别名功能
+

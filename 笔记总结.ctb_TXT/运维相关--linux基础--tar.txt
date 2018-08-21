@@ -1,0 +1,82 @@
+TAR
+tar  作用：创建压缩文件，用来备份，可以节约磁盘空间。
+tar -zcvf xx.tgz xx (******)
+tar -zxvf xx.tgz -C /tmp
+===
+tar命令
+用途：制作归档文件、释放归档文件
+格式：tar  [选项]...  归档文件名  源文件或目录
+              tar  [选项]...  归档文件名  [-C 目标目录]
+常用命令选项
+-c：创建 .tar 格式的包文件
+       -c, --create
+              create a new archive
+-x：解开.tar格式的包文件
+       -x, --extract, --get
+              extract files from an archive
+-v：输出详细信息
+       -v, --verbose
+              verbosely list files processed
+-f：表示使用归档文件
+       -f, --file=ARCHIVE
+              use archive file or device ARCHIVE
+-t：列表查看包内的文件
+       -t, --list
+              list the contents of an archive
+-p：保持原文件的原来属性（权限）
+       -p, --preserve-permissions
+              extract  information  about  file per-
+              missions (default for superuser)
+-P：保持原文件的绝对路径
+      -P, --absolute-names
+              don’t strip  leading  ‘/’s  from  file
+              names
+-C：解包时指定的目标文件夹
+-z：调用gzip程序进行压缩或解压
+       -z, --gzip, --gunzip, --ungzip
+              filter the archive through gzip
+-j：调用bzip2程序进行压缩或解压
+       -j, --bzip2
+              filter the archive through bzip2
+
+TAR
+tar  作用：创建压缩文件，用来备份，可以节约磁盘空间。
+tar -zcvf xx.tgz xx (******)
+tar -zxvf xx.tgz -C /tmp
+===
+tar命令
+用途：制作归档文件、释放归档文件
+格式：tar  [选项]...  归档文件名  源文件或目录
+              tar  [选项]...  归档文件名  [-C 目标目录]
+常用命令选项
+-c：创建 .tar 格式的包文件
+       -c, --create
+              create a new archive
+-x：解开.tar格式的包文件
+       -x, --extract, --get
+              extract files from an archive
+-v：输出详细信息
+       -v, --verbose
+              verbosely list files processed
+-f：表示使用归档文件
+       -f, --file=ARCHIVE
+              use archive file or device ARCHIVE
+-t：列表查看包内的文件
+       -t, --list
+              list the contents of an archive
+-p：保持原文件的原来属性（权限）
+       -p, --preserve-permissions
+              extract  information  about  file per-
+              missions (default for superuser)
+-P：保持原文件的绝对路径
+      -P, --absolute-names
+              don’t strip  leading  ‘/’s  from  file
+              names
+-C：解包时指定的目标文件夹
+-z：调用gzip程序进行压缩或解压
+       -z, --gzip, --gunzip, --ungzip
+              filter the archive through gzip
+-j：调用bzip2程序进行压缩或解压
+       -j, --bzip2
+              filter the archive through bzip2
+

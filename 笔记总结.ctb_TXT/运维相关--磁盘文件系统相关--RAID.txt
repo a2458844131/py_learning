@@ -1,0 +1,592 @@
+RAID
+raid 	
+磁盘阵列（Redundant Arrays of Inexpensive Disks，RAID），有“价格便宜具有冗余能力的磁盘阵列”之意。
+其基本思想就是把多個相對便宜的硬碟組合起來，成為一個硬碟陣列組，使性能達到甚至超過一個價格昂貴、容量巨大的硬碟。
+http://zh.wikipedia.org/wiki/RAID
+http://baike.baidu.com/view/63423.htm?fromId=7102
+
+raid0 -->条带卷
+只需要2块以上的硬盘即可，成本低，可以提高整个磁盘的性能和吞吐量
+读写速度块
+===
+raid1--》镜像卷
+2块--》50%的空间利用率
+有容错功能
+===
+raid5 
+3块以上
+(n-1)/n 利用率
+有容错功能，最多可以坏一块磁盘
+===
+raid6 
+4块以上
+(n-2)/n 利用率
+有容错功能，最多可以坏2块磁盘
+===
+raid10
+4块磁盘
+有容错功能，最多可以坏2块磁盘
+===
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mdadm命令
+用途：
+    创建、修改监控RAID阵列格式：
+    mdadm  [模式] [设备名] [选项] [成员设备名] 
+    -C：新建RAID设备
+    -l 级别：设定RAID级别
+    -n 磁盘数目：设定RAID成员设备数目
+    -x 磁盘数目： 设定备用磁盘数目
+    -s：扫描配置文件。/etc/mdadm.conf
+使用配置文件后，RAID设备在重启后也可以正常的自动加载，因为系统在开机启动时会自动加载RAID
+    -D：查看RAID设备信息
+    -S：停用RAID
+    -A：激活RAID
+创建RAID1
+mdadm -C /dev/md0 -l1 -n2 /dev/sdb /dev/sdc
+查看RAID详细信息
+mdadm -D /dev/md0
+创建配置文件
+mdadm -Ds >/etc/mdadm.conf
+停止RAID
+mdadm -S /dev/md0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently, Linux supports  LINEAR  md  devices,  RAID0  (striping),
+       RAID1  (mirroring), RAID4, RAID5, RAID6, RAID10
+======
+1。新建raid5卷，使用4块磁盘作raid5，1块磁盘作热备
+ mdadm -C /dev/md1 -l5 -n4 -x1 /dev/sd[efghi]
+2。格式化raid5设备
+mkfs.ext4 /dev/md1
+3.挂载使用
+mkdir /music
+mount /dev/md1  /music
+4.自动挂载功能，修改/etc/fstab文件，添加
+/dev/md1     /music     ext3   defaults  0 0
+
+让其中的一块失效，然后看raid5是否能够继续使用
+mdadm /dev/md1  -f /dev/sde
+使用cat /proc/mdstat命令查看修复过程
+
+删除有问题的磁盘，添加一个好的磁盘作热备，要求磁盘>容量一致
+mdadm  /dev/md1 -r /dev/sde  -a /dev/sdk
+=======
+[root@localhost ~]# cat /proc/mdstat 查看raid的构建过程
+Personalities : [raid6] [raid5] [raid4] 
+md5 : active raid5 sde[5] sdf[4](S) sdd[2] sdc[1] sdb[0]
+      3144192 blocks super 1.2 level 5, 512k chunk, algorithm 2 [4/3] [UUU_]
+      [=============>.......]  recovery = 68.5% (719232/1048064) finish=0.0min speed=143846K/sec
+      
+unused devices: <none>
+[root@localhost ~]# cat /proc/mdstat 
+Personalities : [raid6] [raid5] [raid4] 
+md5 : active raid5 sde[5] sdf[4](S) sdd[2] sdc[1] sdb[0]
+      3144192 blocks super 1.2 level 5, 512k chunk, algorithm 2 [4/4] [UUUU]
+      
+unused devices: <none>
+[root@localhost ~]# 
+===
+[root@localhost ~]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:18:19 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 18
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       5       8       64        3      active sync   /dev/sde
+
+       4       8       80        -      spare   /dev/sdf
+=====
+[root@localhost ~]# mdadm -Ds
+ARRAY /dev/md5 metadata=1.2 spares=1 name=localhost.localdomain:5 UUID=cc4079cc:ade73c11:5639dbf4:dcefa596
+[root@localhost ~]# mdadm -Ds >>/etc/mdadm.conf
+[root@localhost ~]#
+====
+[root@localhost ~]# mdadm -S /dev/md5  停止
+mdadm: stopped /dev/md5
+[root@localhost ~]# mdadm -Ds
+[root@localhost ~]# mdadm -A /dev/md5  激活（需要有配置文件）
+mdadm: /dev/md5 has been started with 4 drives and 1 spare.
+[root@localhost ~]# 
+=======
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       3       0        0        3      removed
+
+       2       8       48        -      faulty spare   /dev/sdd
+       5       8       64        -      faulty spare   /dev/sde
+[root@localhost file]# mdadm /dev/md5 -r /dev/sd[de]
+mdadm: hot removed /dev/sdd from /dev/md5
+mdadm: hot removed /dev/sde from /dev/md5
+[root@localhost file]# 
+===
+[root@localhost file]# mdadm /dev/md5 -a /dev/sd[gh]
+mdadm: added /dev/sdg
+mdadm: added /dev/sdh
+==
+[root@localhost file]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:43:52 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 72
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       6       8      112        3      active sync   /dev/sdh
+
+       5       8       96        -      spare   /dev/sdg
+[root@localhost file]# 
+===
+[root@localhost file]# mdadm /dev/md5 -f /dev/sdh
+[root@localhost file]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:46:33 2013
+          State : clean, degraded, recovering 
+ Active Devices : 3
+Working Devices : 4
+ Failed Devices : 1
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+ Rebuild Status : 78% complete
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 86
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       5       8       96        3      spare rebuilding   /dev/sdg
+
+       6       8      112        -      faulty spare   /dev/sdh
+====
+千万不要在没有关闭RAID的情况下删除分区正确关闭RAID的步骤1.umount卸载RAID文件系统2.mdadm -S停用RAID3.清空/etc/mdadm.conf文件4.清除/etc/fstab中RAID的挂载记录5.清除每块磁盘上的元数据6.删除/dev/下所对应的raid设备
+====
+[root@localhost ~]# mdadm -E /dev/sdb 查看磁盘上的元数据
+/dev/sdb:
+          Magic : a92b4efc
+        Version : 1.2
+    Feature Map : 0x0
+     Array UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+   Raid Devices : 4
+
+ Avail Dev Size : 2096128 (1023.67 MiB 1073.22 MB)
+     Array Size : 6288384 (3.00 GiB 3.22 GB)
+    Data Offset : 1024 sectors
+   Super Offset : 8 sectors
+          State : clean
+    Device UUID : 12ddb7bd:054725bd:5e953e20:12ed52f4
+
+    Update Time : Sun Jul 21 01:51:13 2013
+       Checksum : 576aec73 - correct
+         Events : 121
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+   Device Role : Active device 0
+   Array State : AA.. ('A' == active, '.' == missing)
+[root@localhost ~]# 
+=======
+新建一个raid10，要求4块磁盘，1块做热备
+[root@localhost ~]# mdadm  -C /dev/md10  -l10 -n4 -x1 /dev/sd[kjihd]
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md10 started.
+[root@localhost ~]# mdadm -D /dev/md10
+/dev/md10:
+        Version : 1.2
+  Creation Time : Sun Jul 21 02:06:18 2013
+     Raid Level : raid10
+     Array Size : 2096128 (2047.34 MiB 2146.44 MB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 02:06:29 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : near=2
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:10  (local to host localhost.localdomain)
+           UUID : 65ddb577:af1f718b:c5266cdd:89bb9cc7
+         Events : 17
+
+    Number   Major   Minor   RaidDevice State
+       0       8       48        0      active sync   /dev/sdd
+       1       8      112        1      active sync   /dev/sdh
+       2       8      128        2      active sync   /dev/sdi
+       3       8      144        3      active sync   /dev/sdj
+
+       4       8      160        -      spare   /dev/sdk
+[root@localhost ~]# 
+======= 
+
+
+
+
+
+
+
+RAID
+raid 	
+磁盘阵列（Redundant Arrays of Inexpensive Disks，RAID），有“价格便宜具有冗余能力的磁盘阵列”之意。
+其基本思想就是把多個相對便宜的硬碟組合起來，成為一個硬碟陣列組，使性能達到甚至超過一個價格昂貴、容量巨大的硬碟。
+http://zh.wikipedia.org/wiki/RAID
+http://baike.baidu.com/view/63423.htm?fromId=7102
+
+raid0 -->条带卷
+只需要2块以上的硬盘即可，成本低，可以提高整个磁盘的性能和吞吐量
+读写速度块
+===
+raid1--》镜像卷
+2块--》50%的空间利用率
+有容错功能
+===
+raid5 
+3块以上
+(n-1)/n 利用率
+有容错功能，最多可以坏一块磁盘
+===
+raid6 
+4块以上
+(n-2)/n 利用率
+有容错功能，最多可以坏2块磁盘
+===
+raid10
+4块磁盘
+有容错功能，最多可以坏2块磁盘
+===
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mdadm命令
+用途：
+    创建、修改监控RAID阵列格式：
+    mdadm  [模式] [设备名] [选项] [成员设备名] 
+    -C：新建RAID设备
+    -l 级别：设定RAID级别
+    -n 磁盘数目：设定RAID成员设备数目
+    -x 磁盘数目： 设定备用磁盘数目
+    -s：扫描配置文件。/etc/mdadm.conf
+使用配置文件后，RAID设备在重启后也可以正常的自动加载，因为系统在开机启动时会自动加载RAID
+    -D：查看RAID设备信息
+    -S：停用RAID
+    -A：激活RAID
+创建RAID1
+mdadm -C /dev/md0 -l1 -n2 /dev/sdb /dev/sdc
+查看RAID详细信息
+mdadm -D /dev/md0
+创建配置文件
+mdadm -Ds >/etc/mdadm.conf
+停止RAID
+mdadm -S /dev/md0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently, Linux supports  LINEAR  md  devices,  RAID0  (striping),
+       RAID1  (mirroring), RAID4, RAID5, RAID6, RAID10
+======
+1。新建raid5卷，使用4块磁盘作raid5，1块磁盘作热备
+ mdadm -C /dev/md1 -l5 -n4 -x1 /dev/sd[efghi]
+2。格式化raid5设备
+mkfs.ext4 /dev/md1
+3.挂载使用
+mkdir /music
+mount /dev/md1  /music
+4.自动挂载功能，修改/etc/fstab文件，添加
+/dev/md1     /music     ext3   defaults  0 0
+
+让其中的一块失效，然后看raid5是否能够继续使用
+mdadm /dev/md1  -f /dev/sde
+使用cat /proc/mdstat命令查看修复过程
+
+删除有问题的磁盘，添加一个好的磁盘作热备，要求磁盘>容量一致
+mdadm  /dev/md1 -r /dev/sde  -a /dev/sdk
+=======
+[root@localhost ~]# cat /proc/mdstat 查看raid的构建过程
+Personalities : [raid6] [raid5] [raid4] 
+md5 : active raid5 sde[5] sdf[4](S) sdd[2] sdc[1] sdb[0]
+      3144192 blocks super 1.2 level 5, 512k chunk, algorithm 2 [4/3] [UUU_]
+      [=============>.......]  recovery = 68.5% (719232/1048064) finish=0.0min speed=143846K/sec
+      
+unused devices: <none>
+[root@localhost ~]# cat /proc/mdstat 
+Personalities : [raid6] [raid5] [raid4] 
+md5 : active raid5 sde[5] sdf[4](S) sdd[2] sdc[1] sdb[0]
+      3144192 blocks super 1.2 level 5, 512k chunk, algorithm 2 [4/4] [UUUU]
+      
+unused devices: <none>
+[root@localhost ~]# 
+===
+[root@localhost ~]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:18:19 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 18
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       2       8       48        2      active sync   /dev/sdd
+       5       8       64        3      active sync   /dev/sde
+
+       4       8       80        -      spare   /dev/sdf
+=====
+[root@localhost ~]# mdadm -Ds
+ARRAY /dev/md5 metadata=1.2 spares=1 name=localhost.localdomain:5 UUID=cc4079cc:ade73c11:5639dbf4:dcefa596
+[root@localhost ~]# mdadm -Ds >>/etc/mdadm.conf
+[root@localhost ~]#
+====
+[root@localhost ~]# mdadm -S /dev/md5  停止
+mdadm: stopped /dev/md5
+[root@localhost ~]# mdadm -Ds
+[root@localhost ~]# mdadm -A /dev/md5  激活（需要有配置文件）
+mdadm: /dev/md5 has been started with 4 drives and 1 spare.
+[root@localhost ~]# 
+=======
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       3       0        0        3      removed
+
+       2       8       48        -      faulty spare   /dev/sdd
+       5       8       64        -      faulty spare   /dev/sde
+[root@localhost file]# mdadm /dev/md5 -r /dev/sd[de]
+mdadm: hot removed /dev/sdd from /dev/md5
+mdadm: hot removed /dev/sde from /dev/md5
+[root@localhost file]# 
+===
+[root@localhost file]# mdadm /dev/md5 -a /dev/sd[gh]
+mdadm: added /dev/sdg
+mdadm: added /dev/sdh
+==
+[root@localhost file]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:43:52 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 72
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       6       8      112        3      active sync   /dev/sdh
+
+       5       8       96        -      spare   /dev/sdg
+[root@localhost file]# 
+===
+[root@localhost file]# mdadm /dev/md5 -f /dev/sdh
+[root@localhost file]# mdadm -D /dev/md5
+/dev/md5:
+        Version : 1.2
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+     Array Size : 3144192 (3.00 GiB 3.22 GB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 01:46:33 2013
+          State : clean, degraded, recovering 
+ Active Devices : 3
+Working Devices : 4
+ Failed Devices : 1
+  Spare Devices : 1
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+ Rebuild Status : 78% complete
+
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+           UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+         Events : 86
+
+    Number   Major   Minor   RaidDevice State
+       0       8       16        0      active sync   /dev/sdb
+       1       8       32        1      active sync   /dev/sdc
+       4       8       80        2      active sync   /dev/sdf
+       5       8       96        3      spare rebuilding   /dev/sdg
+
+       6       8      112        -      faulty spare   /dev/sdh
+====
+千万不要在没有关闭RAID的情况下删除分区正确关闭RAID的步骤1.umount卸载RAID文件系统2.mdadm -S停用RAID3.清空/etc/mdadm.conf文件4.清除/etc/fstab中RAID的挂载记录5.清除每块磁盘上的元数据6.删除/dev/下所对应的raid设备
+====
+[root@localhost ~]# mdadm -E /dev/sdb 查看磁盘上的元数据
+/dev/sdb:
+          Magic : a92b4efc
+        Version : 1.2
+    Feature Map : 0x0
+     Array UUID : cc4079cc:ade73c11:5639dbf4:dcefa596
+           Name : localhost.localdomain:5  (local to host localhost.localdomain)
+  Creation Time : Sun Jul 21 01:18:10 2013
+     Raid Level : raid5
+   Raid Devices : 4
+
+ Avail Dev Size : 2096128 (1023.67 MiB 1073.22 MB)
+     Array Size : 6288384 (3.00 GiB 3.22 GB)
+    Data Offset : 1024 sectors
+   Super Offset : 8 sectors
+          State : clean
+    Device UUID : 12ddb7bd:054725bd:5e953e20:12ed52f4
+
+    Update Time : Sun Jul 21 01:51:13 2013
+       Checksum : 576aec73 - correct
+         Events : 121
+
+         Layout : left-symmetric
+     Chunk Size : 512K
+
+   Device Role : Active device 0
+   Array State : AA.. ('A' == active, '.' == missing)
+[root@localhost ~]# 
+=======
+新建一个raid10，要求4块磁盘，1块做热备
+[root@localhost ~]# mdadm  -C /dev/md10  -l10 -n4 -x1 /dev/sd[kjihd]
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md10 started.
+[root@localhost ~]# mdadm -D /dev/md10
+/dev/md10:
+        Version : 1.2
+  Creation Time : Sun Jul 21 02:06:18 2013
+     Raid Level : raid10
+     Array Size : 2096128 (2047.34 MiB 2146.44 MB)
+  Used Dev Size : 1048064 (1023.67 MiB 1073.22 MB)
+   Raid Devices : 4
+  Total Devices : 5
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jul 21 02:06:29 2013
+          State : clean 
+ Active Devices : 4
+Working Devices : 5
+ Failed Devices : 0
+  Spare Devices : 1
+
+         Layout : near=2
+     Chunk Size : 512K
+
+           Name : localhost.localdomain:10  (local to host localhost.localdomain)
+           UUID : 65ddb577:af1f718b:c5266cdd:89bb9cc7
+         Events : 17
+
+    Number   Major   Minor   RaidDevice State
+       0       8       48        0      active sync   /dev/sdd
+       1       8      112        1      active sync   /dev/sdh
+       2       8      128        2      active sync   /dev/sdi
+       3       8      144        3      active sync   /dev/sdj
+
+       4       8      160        -      spare   /dev/sdk
+[root@localhost ~]# 
+======= 
+
+
+
+
+
+
+
